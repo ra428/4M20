@@ -57,18 +57,21 @@ for i = 1:N
     
     r_ls1 = norm(p_s1-p_ls1);
     r_rs1 = norm(p_s2-p_ls1);
+    % euclidean distance between position of the sensor and lightsource
 
     omega_l = 1/r_ls1^2*rho - 1/(1.8*r_ls1)^3*rho;
     omega_r = 1/r_rs1^2*rho - 1/(1.8*r_rs1)^3*rho;
+    % some arbitrary defining equation for how much the wheel turns
 
-    v_c = (omega_l*r_w + omega_r*r_w)/2;
-    dphi = -(omega_r*r_w - omega_l*r_w)/2/(l_s/2); %Remove minus sign to switch polarity
+    v_c = (omega_l*r_w + omega_r*r_w)/2; %this might be the velocity of car
+    dphi = - (omega_r*r_w - omega_l*r_w)/2/(l_s/2); %Remove minus sign to switch polarity
+    % minus sign is changing going towards/away from lightsource
             
     if i>1
         p_c(:,i) = p_c(:,i-1) + [v_c*cos(p_c(3,i-1));v_c*sin(p_c(3,i-1));dphi]*dt;
         p_s1 = p_c(1:2,i) + l_s/2*[cos(p_c(3,i));sin(p_c(3,i))] + d_s/2*[-sin(p_c(3,i));cos(p_c(3,i))];
         p_s2 = p_c(1:2,i) + l_s/2*[cos(p_c(3,i));sin(p_c(3,i))] + d_s/2*[sin(p_c(3,i));-cos(p_c(3,i))];
-        p_ls1 = [0.5*sin(t(i)/5)+1;0.5*cos(t(i)/5)+1];
+        p_ls1 = [0.5*sin(t(i)/5)+1;0.5*cos(t(i)/5)+1]; % position of light source
     end
 end
 
