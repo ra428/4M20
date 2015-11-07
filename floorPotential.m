@@ -6,7 +6,7 @@ mapLengthX = 100; mapLengthY = 100;
 
 exitPosition = [1, 50];
 firePosition = [50,50];
-initialPosition = [40,41];
+initialPosition = [80,40];
 
 potentialMap = zeros(mapLengthX,mapLengthY); % generate a 400 * 400 map
 
@@ -55,7 +55,7 @@ escapeRoute = getEscapeRoute(potentialMap, initialPosition(1), initialPosition(2
         x = initialX;
         y = initialY;
         
-        while ((x ~= exitPosition(1)) && (y ~= exitPosition(2)))
+        while (not((x == exitPosition(1)) && (y == exitPosition(2))))
             nextPosition = getNextPosition(map, x, y);
             escapeRoute = [escapeRoute;nextPosition];
             x = nextPosition(1);
@@ -71,6 +71,8 @@ escapeRoute = getEscapeRoute(potentialMap, initialPosition(1), initialPosition(2
         
         for x = currentX - 1: currentX + 1
             for y = currentY - 1: currentY +1
+                x
+                y
                 potential = map(x, y);
                 if (potential < minPotential)
                     minPotential = potential;
@@ -92,5 +94,5 @@ caxis([min(potentialMap(:))-.5*range(potentialMap(:)),max(potentialMap(:))]);
 figure
 contour(potentialMap);
 hold on
-plot (escapeRoute(:,1),escapeRoute(:,2),'k--');
+plot (escapeRoute(:,2),escapeRoute(:,1),'k--');
 end
