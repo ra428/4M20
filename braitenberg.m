@@ -51,11 +51,11 @@ lw1 = line(0,0,'color','k','LineWidth',5);  %wheel left
 lw2 = line(0,0,'color','k','LineWidth',5);  %wheel right
 ls1 = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor left
 ls2 = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor right
-lli1 = line(0,0,'color',[0.7 0.7 0],'Marker','.','MarkerSize',30);  %light source
+lli1 = line(0,0,'color','r','Marker','.','MarkerSize',50);  %fire source
 
 %% Simulation
 set(lli1,'xdata',p_ls1(1),'ydata',p_ls1(2))
-axis([0 2 0 2])
+axis([-10 10 -10 10])
 
 t = 0:dt:N;
 for i = 1:N
@@ -69,7 +69,7 @@ for i = 1:N
     % some arbitrary defining equation for how much the wheel turns
 
     v_c = (omega_l*r_w + omega_r*r_w)/2; %this might be the velocity of car
-    dphi = - (omega_r*r_w - omega_l*r_w)/2/(l_s/2); % Remove minus sign to switch polarity
+    dphi = (omega_r*r_w - omega_l*r_w)/2/(l_s/2); % Remove minus sign to switch polarity, now it goes away from fire
     % minus sign is changing going towards/away from lightsource
     
     
@@ -78,7 +78,8 @@ for i = 1:N
         p_c(:,i) = p_c(:,i-1) + [v_c*cos(p_c(3,i-1));v_c*sin(p_c(3,i-1));dphi]*dt;
         p_s1 = p_c(1:2,i) + l_s/2*[cos(p_c(3,i));sin(p_c(3,i))] + d_s/2*[-sin(p_c(3,i));cos(p_c(3,i))];
         p_s2 = p_c(1:2,i) + l_s/2*[cos(p_c(3,i));sin(p_c(3,i))] + d_s/2*[sin(p_c(3,i));-cos(p_c(3,i))];
-        p_ls1 = [0.5*sin(t(i)/5)+1;0.5*cos(t(i)/5)+1]; % position of light source
+%         p_ls1 = [0.5*sin(t(i)/5)+1;0.5*cos(t(i)/5)+1]; % constant fire
+%         source position
     end
 end
 
@@ -110,7 +111,7 @@ while toc < t(end)
         p_s1 = p_c(1:2,idx) + l_s/2*[cos(p_c(3,idx));sin(p_c(3,idx))] + d_s/2*[-sin(p_c(3,idx));cos(p_c(3,idx))];
         p_s2 = p_c(1:2,idx) + l_s/2*[cos(p_c(3,idx));sin(p_c(3,idx))] + d_s/2*[sin(p_c(3,idx));-cos(p_c(3,idx))];
 
-        p_ls1 = [0.5*sin(t(idx)/5)+1;0.5*cos(t(idx)/5)+1];
+%         p_ls1 = [0.5*sin(t(idx)/5)+1;0.5*cos(t(idx)/5)+1];
         
         plot([p_c(1,idx);p_c_old(1)],[p_c(2,idx);p_c_old(2)])
 
@@ -122,7 +123,7 @@ while toc < t(end)
         set(lw2,'xdata',[r_w2(1,1) r_w2(1,2)],'ydata',[r_w2(2,1) r_w2(2,2)])
         set(ls1,'xdata',p_s1(1),'ydata',p_s1(2))
         set(ls2,'xdata',p_s2(1),'ydata',p_s2(2))
-        set(lli1,'xdata',p_ls1(1),'ydata',p_ls1(2))
+%         set(lli1,'xdata',p_ls1(1),'ydata',p_ls1(2))
 
         drawnow
         p_c_old = p_c(:,idx);
