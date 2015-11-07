@@ -6,15 +6,20 @@
 %%%%%%          Michaelmas 2015                                      %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%Hi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Main function                                                         %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Blank slate
-clear all
+% clear all
 close all
 clc
+
+%% Define the postion of walls
+% x1 y1 x2 y2
+wall = [0 0.5 0 1;
+        0 0 1 0];
 
 %% Parameters
 p_ls1 = [1;1];  %position light source
@@ -64,8 +69,10 @@ for i = 1:N
     % some arbitrary defining equation for how much the wheel turns
 
     v_c = (omega_l*r_w + omega_r*r_w)/2; %this might be the velocity of car
-    dphi = - (omega_r*r_w - omega_l*r_w)/2/(l_s/2); %Remove minus sign to switch polarity
+    dphi = - (omega_r*r_w - omega_l*r_w)/2/(l_s/2); % Remove minus sign to switch polarity
     % minus sign is changing going towards/away from lightsource
+    
+    
             
     if i>1
         p_c(:,i) = p_c(:,i-1) + [v_c*cos(p_c(3,i-1));v_c*sin(p_c(3,i-1));dphi]*dt;
@@ -81,7 +88,10 @@ RepSpeed = 1; %replay speed
 fps = 30;     %frames per second
 tic
 
-while toc < t(end)   
+
+drawWall(wall);
+while toc < t(end)
+
     % Animation
     if mod(toc,1/fps) > mod(toc,1/fps+dt)
 
@@ -116,5 +126,8 @@ while toc < t(end)
 
         drawnow
         p_c_old = p_c(:,idx);
+        
+        getDistanceBetweenPointAndLine(p_c(:,idx),wall(1,:))
+        getDistanceBetweenPointAndLine(p_c(:,idx),wall(2,:))
     end
 end
