@@ -69,10 +69,8 @@ for i = 1:N
     % some arbitrary defining equation for how much the wheel turns
 
     v_c = (omega_l*r_w + omega_r*r_w)/2; %this might be the velocity of car
-    dphi = - (omega_r*r_w - omega_l*r_w)/2/(l_s/2); % Remove minus sign to switch polarity
+    dphi = - (omega_r*r_w - omega_l*r_w)/2/(l_s/2); %Remove minus sign to switch polarity
     % minus sign is changing going towards/away from lightsource
-    
-    
             
     if i>1
         p_c(:,i) = p_c(:,i-1) + [v_c*cos(p_c(3,i-1));v_c*sin(p_c(3,i-1));dphi]*dt;

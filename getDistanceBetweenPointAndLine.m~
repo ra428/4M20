@@ -1,0 +1,20 @@
+function distance = getDistanceBetweenPointAndLine(point, line)
+
+    pointX = point[0];
+    pointY = po
+
+        gradient = (lineY2 - lineY1) / (lineX2 - lineX1);
+
+        // in Ax + By + C = 0 form
+        double A = - gradient;
+        double B = 1;
+        double C = gradient * line.first.getX() - line.first.getY();
+
+//        Log.v("Coordinates", "A " + A + " B " + B + " C " + C);
+
+        // use |Am + Bn + C|/sqrt(A^2+B^2) where point is (m,n)
+        double numerator = Math.abs(A * point.getX() + B * point.getY() + C);
+        double denominator = Math.sqrt(Math.pow(A, 2) + Math.pow(B, 2));
+
+        return numerator / denominator;
+    }
