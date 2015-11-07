@@ -80,8 +80,8 @@ t_next = 0;   %variable for timing of frame capture
 RepSpeed = 1; %replay speed
 fps = 30;     %frames per second
 tic
-while toc < t(end)
-        
+
+while toc < t(end)   
     % Animation
     if mod(toc,1/fps) > mod(toc,1/fps+dt)
 
