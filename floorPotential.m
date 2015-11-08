@@ -141,4 +141,12 @@ drawPotentialMap(potentialMap);
 drawEscapeRoute(potentialMap, escapeRoute);
 drawSimulation(exitPosition, firePosition, escapeRoute)
 
-end
+%<<<<<<< HEAD
+%end
+%=======
+%figure
+%contour(potentialMap);
+%hold on
+%
+%plot (escapeRoute(:,2),escapeRoute(:,1),'k--');
+%>>>>>>> 3286bf8ff651f1db948048b761884a673e32e9d5
