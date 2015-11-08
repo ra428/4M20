@@ -9,17 +9,16 @@ mapLengthX = 100; mapLengthY = 200;
 exitPosition = [1, 50];
 firePosition = [80,50];
 initialPosition = [80,40];
-wallPosition = [50, 40; 10, 80];
+wallsPositions = [50, 40, 10, 80;
+                  20, 40, 50, 80];
 
-potentialMap = zeros(mapLengthX,mapLengthY); % generate a 400 * 400 map
+potentialMap = zeros(mapLengthX,mapLengthY); % generate a map
 
 firePotential = getFirePotential(potentialMap, firePosition(1), firePosition(2), 80, 50);
-
 exitPotential = getExitPotential(potentialMap, exitPosition(1), exitPosition(2), -50);
-wallPotential = getWallPotential(potentialMap, wallPosition(1, 1), wallPosition(1, 2), wallPosition(2, 1), wallPosition(2, 2), 4);
+wallsPotential = getWallsPotential(potentialMap, wallsPositions, 4);
 
-potentialMap = potentialMap + firePotential + exitPotential + wallPotential;
-% potentialMap = potentialMap + wallPotential;
+potentialMap = potentialMap + firePotential + exitPotential + wallsPotential;
 
 escapeRoute = getEscapeRoute(potentialMap, initialPosition(1), initialPosition(2));
 
@@ -36,7 +35,7 @@ escapeRoute = getEscapeRoute(potentialMap, initialPosition(1), initialPosition(2
         
         %rescaling
         firePotential = firePotential * maxPotential / max(firePotential(:));
-        firePotential = firePotential';
+        firePotential = firePotential'; % transpose to match our definition of x, y of map
     end
 
     function exitPotential = getExitPotential(map, positionX, positionY, minPotential)
@@ -76,8 +75,19 @@ escapeRoute = getEscapeRoute(potentialMap, initialPosition(1), initialPosition(2
         
         %rescaling
         wallPotential = wallPotential * maxPotential / max(wallPotential(:));
-        wallPotential = wallPotential';
+        wallPotential = wallPotential'; % transpose to match our definition of x, y of map
     end
+
+    function wallsPotential = getWallsPotential(map, wallsPositions, maxPotential)
+        [lengthX, lengthY]=size(map);
+        wallsPotential = zeros(lengthX,lengthY);
+        
+        for i = 1:size(wallsPositions, 1)
+           wallsPotential = wallsPotential + getWallPotential(potentialMap, wallsPositions(i, 1), wallsPositions(i, 2), wallsPositions(i, 3), wallsPositions(i, 4), maxPotential);
+        end
+    end 
+
+
 
     function escapeRoute = getEscapeRoute(map, initialX, initialY)
         escapeRoute = [initialX, initialY];
@@ -90,6 +100,8 @@ escapeRoute = getEscapeRoute(potentialMap, initialPosition(1), initialPosition(2
             escapeRoute = [escapeRoute;nextPosition];
             x = nextPosition(1);
             y = nextPosition(2);
+            x
+            y
         end
     end
 
@@ -128,7 +140,7 @@ escapeRoute = getEscapeRoute(potentialMap, initialPosition(1), initialPosition(2
     end
 
     function drawEscapeRoute(potentialMap, escapeRoute)
-        figure
+        figure;
         contour(potentialMap');
         hold on
         plot (escapeRoute(:,1),escapeRoute(:,2),'k--');
@@ -138,15 +150,15 @@ escapeRoute = getEscapeRoute(potentialMap, initialPosition(1), initialPosition(2
 
 
 drawPotentialMap(potentialMap);
-drawEscapeRoute(potentialMap, escapeRoute);
-drawSimulation(exitPosition, firePosition, escapeRoute)
+% drawEscapeRoute(potentialMap, escapeRoute);
+figure;
+drawSimulation(exitPosition, firePosition, wallsPositions, escapeRoute)
 
-%<<<<<<< HEAD
-%end
-%=======
-%figure
-%contour(potentialMap);
-%hold on
-%
-%plot (escapeRoute(:,2),escapeRoute(:,1),'k--');
-%>>>>>>> 3286bf8ff651f1db948048b761884a673e32e9d5
+
+% figure
+% contour(potentialMap);
+% hold on
+% 
+% plot (escapeRoute(:,2),escapeRoute(:,1),'k--');
+
+end
