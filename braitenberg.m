@@ -55,7 +55,7 @@ lli1 = line(0,0,'color','r','Marker','.','MarkerSize',50);  %fire source
 
 %% Simulation
 set(lli1,'xdata',p_ls1(1),'ydata',p_ls1(2))
-axis([-10 10 -10 10])
+axis([0 2 0 2])
 
 t = 0:dt:N;
 for i = 1:N
