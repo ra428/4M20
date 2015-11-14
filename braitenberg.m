@@ -90,7 +90,7 @@ fps = 30;     %frames per second
 tic
 
 
-drawWall(wall);
+% drawWall(wall);
 while toc < t(end)
 
     % Animation
