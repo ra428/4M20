@@ -4,19 +4,22 @@ close all;
 global mapLengthX
 global mapLengthY
 
-mapLengthX = 100; mapLengthY = 200;
+mapLengthX = 100; mapLengthY = 100;
 
-exitPosition = [1, 50];
-firePosition = [80,50];
-initialPosition = [80,40];
-wallsPositions = [50, 40, 10, 80;
-                  20, 40, 50, 80];
+exitPosition = [99, 1];
+firePosition = [10,10];
+initialPosition = [30,10];
+wallsPositions = [1, 1, 1, 100;
+                  1, 1, 100, 1;
+                  100, 100, 1, 100;
+                  100, 100, 100, 1;
+                  50, 1, 50, 50];
 
 potentialMap = zeros(mapLengthX,mapLengthY); % generate a map
 
 firePotential = getFirePotential(potentialMap, firePosition(1), firePosition(2), 80, 50);
 exitPotential = getExitPotential(potentialMap, exitPosition(1), exitPosition(2), -50);
-wallsPotential = getWallsPotential(potentialMap, wallsPositions, 4);
+wallsPotential = getWallsPotential(potentialMap, wallsPositions, 20);
 
 potentialMap = potentialMap + firePotential + exitPotential + wallsPotential;
 
@@ -100,12 +103,21 @@ escapeRoute = getEscapeRoute(potentialMap, initialPosition(1), initialPosition(2
             escapeRoute = [escapeRoute;nextPosition];
             x = nextPosition(1);
             y = nextPosition(2);
-            x
-            y
+            if (escapeRoute(end - 1, :) == escapeRoute(end, :))
+                % compare if the last entry is the same as second to last
+                % entry, if yes, it has got stuck
+                break;
+            end
+                
+                
         end
     end
 
     function nextPosition = getNextPosition(map, currentX, currentY)
+        if (currentX == 28 && currentY == 2) 
+            x = 5
+        end
+        
         minPositionX = 0;
         minPositionY = 0; % arbitrary
         
@@ -153,12 +165,12 @@ drawPotentialMap(potentialMap);
 % drawEscapeRoute(potentialMap, escapeRoute);
 figure;
 drawSimulation(exitPosition, firePosition, wallsPositions, escapeRoute)
+escapeRoute
 
-
-% figure
-% contour(potentialMap);
-% hold on
+figure
+contour(potentialMap');
+hold on
 % 
-% plot (escapeRoute(:,2),escapeRoute(:,1),'k--');
+plot (escapeRoute(:,1),escapeRoute(:,2),'k--');
 
 end
