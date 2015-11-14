@@ -1,9 +1,9 @@
-function drawRooms(exitPosition, firePosition, rooms, doors)
+function drawRooms(firePosition, rooms, doors)
 
-exitPositionHandler =  line(0,0,'color','g','Marker','.','MarkerSize',40);
+exitPositionHandler =  line(0,0,'color','g','Marker','.','MarkerSize',60);
 firePositionHandler =  line(0,0,'color','r','Marker','.','MarkerSize',40);
 
-set(exitPositionHandler, 'xdata', exitPosition(1), 'ydata', exitPosition(2));
+set(exitPositionHandler, 'xdata', doors(end).x, 'ydata', doors(end).y);
 set(firePositionHandler, 'xdata', firePosition(1), 'ydata', firePosition(2));
 
 for i=1:numel(rooms)

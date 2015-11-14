@@ -4,9 +4,7 @@ classdef Door < handle
         x;
         y;
         orientation;
-        rooms;
-        
-        cost;      
+        rooms;         
     end
     
     methods
@@ -15,7 +13,6 @@ classdef Door < handle
             obj.x = x;
             obj.y = y;
             obj.rooms = [];
-            obj.cost = 0;
         end
         
         function addRoom(self, room)
