@@ -17,10 +17,12 @@ classdef Vehicle < handle
         rightWheelHandle;  %wheel right
         leftSensorHandle;   %sensor left
         rightSensorHandle;   %sensor right
+        
+        room; % the room which it is in
     end
     
     methods
-        function obj = Vehicle(position)
+        function obj = Vehicle(position, rooms)
             
             obj.position = position;
             obj.positionHistory = [position];
@@ -37,14 +39,14 @@ classdef Vehicle < handle
             obj.rightWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel right
             obj.leftSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor left
             obj.rightSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor right
+            obj.room = obj.getRoom(rooms);
         end
         
         function updatePosition(self, omegaLeftWheel, omegaRightWheel)
-            dt = 10;
             velocity = (omegaLeftWheel*self.wheelRadius + omegaRightWheel*self.wheelRadius)/2; %this might be the velocity of car
             dphi = (omegaRightWheel*self.wheelRadius - omegaLeftWheel*self.wheelRadius)/2/(self.shaftLength/2); % Remove minus sign to switch polarity, now it goes away from fire
             % minus sign is changing going towards/away from lightsource
-            self.position = self.position + [velocity*cos(self.position(3));velocity*sin(self.position(3));dphi]*dt;
+            self.position = self.position + [velocity*cos(self.position(3));velocity*sin(self.position(3));dphi];
             self.positionLeftSensor = self.position(1:2) + self.shaftLength/2*[cos(self.position(3));sin(self.position(3))] + self.distanceBetweenSensors/2*[-sin(self.position(3));cos(self.position(3))];
             self.positionRightSensor = self.position(1:2) + self.shaftLength/2*[cos(self.position(3));sin(self.position(3))] + self.distanceBetweenSensors/2*[sin(self.position(3));-cos(self.position(3))];
             
@@ -63,29 +65,71 @@ classdef Vehicle < handle
             distance = [norm(self.positionLeftSensor - positionDoor), norm(self.positionRightSensor - positionDoor)];
         end
         
-        function nextStep(self, positionFire, positionDoor)
-            distanceToFire = self.getDistanceToFire(positionFire);
-            distanceToDoor = self.getDistanceToDoor(positionDoor);
-            
-            omegaLeftWheel = 10 * distanceToDoor(1) + 0.5 * distanceToFire(2);
-            omegaRightWheel = 10 * distanceToDoor(2) + 0.5 * distanceToFire(1);
-            
-            if (omegaLeftWheel > omegaRightWheel)
-                
-                omegaRightWheel = omegaRightWheel / (2 * omegaLeftWheel);
-                omegaLeftWheel = 0.5;
+        function faceDoor(self, positionDoor)
+            angle = self.getAngleToDoor(positionDoor);
+            if (angle > 0)
+                while (abs(angle) > 0.05)
+                    self.updatePosition(0.1, -0.1);
+                    angle = self.getAngleToDoor(positionDoor);
+                end
             else
-                omegaLeftWheel = omegaLeftWheel / (2 * omegaRightWheel);
-                omegaRightWheel = 0.5;
+                while (abs(angle) > 0.05)
+                    self.updatePosition(-0.1, 0.1);
+                    angle = self.getAngleToDoor(positionDoor);
+                    angle
+                end
             end
             
-            self.updatePosition(omegaLeftWheel, omegaRightWheel);
+        
+        end
+        
+        function nextStep(self, positionFire, positionDoor)
+
+            if ((norm(self.position(1:2) - positionDoor) > 0.2))
+            
+                distanceToFire = self.getDistanceToFire(positionFire);
+                distanceToDoor = self.getDistanceToDoor(positionDoor);
+
+                omegaLeftWheel = 10 * distanceToDoor(1) + 5 * distanceToFire(2);
+                omegaRightWheel = 10 * distanceToDoor(2) + 5 * distanceToFire(1);
+
+                if (omegaLeftWheel > omegaRightWheel)
+
+                    omegaRightWheel = omegaRightWheel / (2.5 * omegaLeftWheel);
+                    omegaLeftWheel = 0.5;
+                else
+                    omegaLeftWheel = omegaLeftWheel / (2.5 * omegaRightWheel);
+                    omegaRightWheel = 0.5;
+                end
+
+                self.updatePosition(omegaLeftWheel, omegaRightWheel);
+            end
             
             
         end
         
         
+        function angle = getAngleToDoor(self, positionDoor)
+            bearingOfDoor = -atan((positionDoor(2) - self.position(2)) / (positionDoor(1) - self.position(1)));
+            angle = bearingOfDoor - self.position(3);
+            if (angle > pi)
+                angle = angle - 2 * pi;
+            elseif (angle < -pi)
+                angle = angle + 2 * pi;
+                
+            end
+            
+            
+        end
         
+        function room = getRoom(self, rooms)
+            for i = 1: numel(rooms)
+                room = rooms(i);
+                if ((self.position(1) < room.topRight(1)) && (self.position(1) > room.topLeft(1)) && (self.position(2) > room.bottomLeft(2)) && (self.position(2) < room.topRight(2)))
+                   break; 
+                end
+            end
+        end
         
         %
         %         function updatePosition(self, x, y, bearing)
