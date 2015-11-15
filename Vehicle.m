@@ -104,6 +104,11 @@ classdef Vehicle < handle
                 if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.2))
                     
                     distanceToFire = self.getDistanceToFire(positionFire);
+                    if (~self.isFireInRoom(self.room, positionFire))
+                        % only consider the fire if it is in the current
+                        % room
+                        distanceToFire = [1000;1000];
+                    end
                     distanceToDoor = self.getDistanceToDoor([self.target.x; self.target.y]);
                     
                     omegaLeftWheel = 10 * distanceToDoor(1) + 5 * distanceToFire(2);
@@ -162,7 +167,7 @@ classdef Vehicle < handle
                     if (self.isFireInRoom(self.room, positionFire))
                         for i = 1: numel(doors)
                             if (lastDoor.id ~= doors(i).id)
-                                self.costs(doors(i).id) = self.costs(doors(i).id) + 10;
+                                self.costs(doors(i).id) = self.costs(doors(i).id) + 30;
                             end
                         end
                     end
@@ -186,15 +191,25 @@ classdef Vehicle < handle
         
         
         function angle = getAngleToDoor(self, positionDoor)
-            bearingOfDoor = atan((positionDoor(2) - self.position(2)) / (positionDoor(1) - self.position(1)));
-            angle = bearingOfDoor - self.position(3);
-            if (angle > pi)
-                angle = angle - 2 * pi;
-            elseif (angle < -pi)
-                angle = angle + 2 * pi;
-                
-            end
-            
+%             bearingOfDoor = atan((positionDoor(2) - self.position(2)) / (positionDoor(1) - self.position(1)));
+%             angle = bearingOfDoor - self.position(3);
+%             if (angle > pi)
+%                 angle = angle - 2 * pi;
+%             elseif (angle < -pi)
+%                 angle = angle + 2 * pi;
+%                 
+%             end
+
+            u = [positionDoor(1) - self.position(1), positionDoor(2) - self.position(2)];
+            v = [(self.positionLeftSensor(1) + self.positionRightSensor(1)) / 2 - self.position(1), (self.positionLeftSensor(2) + self.positionRightSensor(2)) / 2- self.position(2)];
+
+            cosTheta = dot(u,v)/(norm(u)*norm(v));
+            angle = -acos(cosTheta);
+%             
+
+%             u = complex(positionDoor(1) - self.position(1), positionDoor(2) - self.position(2));
+%             v = complex((self.positionLeftSensor(1) + self.positionRightSensor(1)) / 2 - self.position(1), (self.positionLeftSensor(2) + self.positionRightSensor(2)) / 2 - self.position(2));
+%             angleInRadian = angle(u - v);
             
         end
         
