@@ -123,15 +123,49 @@ classdef Vehicle < handle
                     % we have reached the target, change to the next target
                     % update the cost
                     
-                    % update the room it is in
+                    % update the room it is in (htis logic is needed coz it
+                    % has not really moved to the next room yet
+                    
+                    lastDoor = self.target;
+                    lastRoom = self.room; % self.room and target will be updated soon, just save a copy
+                    
                     potentialRooms = self.target.rooms;
+                    
                     
                     if (potentialRooms(1) == self.room)
                         self.room = potentialRooms(2);
+                        
                     else
                         self.room = potentialRooms(1);
                     end
                     
+                    % update the cost of  the door just went through
+                    % (reluctant to go back / change in cost of other
+                    % exits)
+                    doors = lastRoom.doors;
+                    lowestCost = 1000; % arbitrary, if the room has only one door, the cost is really high (no exit)
+                    if (numel(doors) ~= 1)
+                        for i = 1: numel(doors)
+                            if (lastDoor.id ~= doors(i).id)
+                                cost = self.costs(lastDoor.id) + self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
+                                if ( cost < lowestCost)
+                                    lowestCost = cost;
+                                end
+                            end
+                        end
+                    end
+                    
+                    self.costs(lastDoor.id) = lowestCost;
+                    
+                    % immediately check the room after going into a new one
+                    doors = self.room.doors;
+                    if (self.isFireInRoom(self.room, positionFire))
+                        for i = 1: numel(doors)
+                            if (lastDoor.id ~= doors(i).id)
+                                self.costs(doors(i).id) = self.costs(doors(i).id) + 10;
+                            end
+                        end
+                    end
                     
                     
                     
@@ -170,6 +204,14 @@ classdef Vehicle < handle
                 if ((self.position(1) < room.topRight(1)) && (self.position(1) > room.topLeft(1)) && (self.position(2) > room.bottomLeft(2)) && (self.position(2) < room.topRight(2)))
                     break;
                 end
+            end
+        end
+        
+        function fireInRoom = isFireInRoom(self, room, positionFire)
+            if ((positionFire(1) < room.topRight(1)) && (positionFire(1) > room.topLeft(1)) && (positionFire(2) > room.bottomLeft(2)) && (positionFire(2) < room.topRight(2)))
+                fireInRoom = true;
+            else
+                fireInRoom = false;
             end
         end
         

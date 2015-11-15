@@ -19,14 +19,11 @@ rooms = [room1, room2, room3];
 drawRooms(firePosition, rooms, doors);
 
 v = Vehicle([2.5;2.5;pi/2], rooms, doors);
-v.draw()
-i = 0;
 while (norm(v.position(1:2) - [exit.x; exit.y]) > 0.2)
     
     v.draw();
     pause(0.001);
 
     v.nextStep(firePosition);
-    i = i + 1;
     
 end
