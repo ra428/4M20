@@ -55,13 +55,18 @@ classdef Vehicle < handle
             obj.initialiseCosts();
             
             obj.target = obj.getTarget(obj.room);
+            
+            obj.faceDoor([obj.target.x, obj.target.y]);
         end
         
         function updatePosition(self, omegaLeftWheel, omegaRightWheel)
             velocity = (omegaLeftWheel*self.wheelRadius + omegaRightWheel*self.wheelRadius)/2; %this might be the velocity of car
             dphi = (omegaRightWheel*self.wheelRadius - omegaLeftWheel*self.wheelRadius)/2/(self.shaftLength/2); % Remove minus sign to switch polarity, now it goes away from fire
             % minus sign is changing going towards/away from lightsource
-            self.position = self.position + [velocity*cos(self.position(3));velocity*sin(self.position(3));dphi];
+            
+            dt = 5; % how much the animation is
+            
+            self.position = self.position + [velocity*cos(self.position(3));velocity*sin(self.position(3));dphi]*dt;
             self.positionLeftSensor = self.position(1:2) + self.shaftLength/2*[cos(self.position(3));sin(self.position(3))] + self.distanceBetweenSensors/2*[-sin(self.position(3));cos(self.position(3))];
             self.positionRightSensor = self.position(1:2) + self.shaftLength/2*[cos(self.position(3));sin(self.position(3))] + self.distanceBetweenSensors/2*[sin(self.position(3));-cos(self.position(3))];
             
