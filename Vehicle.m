@@ -32,7 +32,7 @@ classdef Vehicle < handle
         function obj = Vehicle(position, rooms, doors)
             
             obj.position = position;
-            obj.positionHistory = [position];
+            obj.positionHistory = (position);
             obj.positionLeftSensor = position(1:2) + obj.shaftLength/2*[cos(position(3));sin(position(3))] + ...
                 obj.distanceBetweenSensors/2*[-sin(position(3));cos(position(3))];
             obj.positionRightSensor = position(1:2) + obj.shaftLength/2*[cos(position(3));sin(position(3))] + ...
@@ -98,8 +98,6 @@ classdef Vehicle < handle
                     angle = self.getAngleToDoor(positionDoor);
                 end
             end
-            
-            
         end
         
         function nextStep(self, positionFire)
@@ -107,7 +105,7 @@ classdef Vehicle < handle
             if (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.2)
                 % only proceed calculation if it has not reached the exit
                 if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.2))
-                    
+                    % Only proceed if vehicle is not at target door
                     distanceToFire = self.getDistanceToFire(positionFire);
                     if (~self.isFireInRoom(self.room, positionFire))
                         % only consider the fire if it is in the current
@@ -133,7 +131,7 @@ classdef Vehicle < handle
                     % we have reached the target, change to the next target
                     % update the cost
                     
-                    % update the room it is in (htis logic is needed coz it
+                    % update the room it is in (this logic is needed coz it
                     % has not really moved to the next room yet
                     
                     lastDoor = self.target;
@@ -141,10 +139,9 @@ classdef Vehicle < handle
                     
                     potentialRooms = self.target.rooms;
                     
-                    
+                    % This updates our current room to the next one
                     if (potentialRooms(1) == self.room)
                         self.room = potentialRooms(2);
-                        
                     else
                         self.room = potentialRooms(1);
                     end
@@ -157,8 +154,9 @@ classdef Vehicle < handle
                     if (numel(doors) ~= 1)
                         for i = 1: numel(doors)
                             if (lastDoor.id ~= doors(i).id)
+                                % For each door in the room that is not the last door the vehicle went through
                                 cost = self.costs(lastDoor.id) + self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
-                                if ( cost < lowestCost)
+                                if (cost < lowestCost)
                                     lowestCost = cost;
                                 end
                             end
@@ -210,7 +208,6 @@ classdef Vehicle < handle
 
             cosTheta = dot(u,v)/(norm(u)*norm(v));
             angle = -acos(cosTheta);
-%             
 
 %             u = complex(positionDoor(1) - self.position(1), positionDoor(2) - self.position(2));
 %             v = complex((self.positionLeftSensor(1) + self.positionRightSensor(1)) / 2 - self.position(1), (self.positionLeftSensor(2) + self.positionRightSensor(2)) / 2 - self.position(2));
@@ -281,12 +278,10 @@ classdef Vehicle < handle
                     end
                 end
             end
-            
-            
-            
         end
         
         function target = getTarget(self, room)
+            % Returns the door with the lowest cost in the room
             doors = room.doors;
             lowestCost = 1000; % arbitrary
             for i = 1: numel(doors)
@@ -300,8 +295,6 @@ classdef Vehicle < handle
         
         
         function draw(self)
-            
-            
             r_c1 = self.position(1:2) + self.shaftLength/2*[-sin(self.position(3));cos(self.position(3))] - self.shaftLength/2*[cos(self.position(3));sin(self.position(3))];
             r_c2 = r_c1 + self.shaftLength*[cos(self.position(3));sin(self.position(3))];
             r_c3 = r_c2 + self.shaftLength*[sin(self.position(3));-cos(self.position(3))];
