@@ -84,35 +84,7 @@ classdef Vehicle < handle
             % sensor]
             distance = [norm(self.positionLeftSensor - positionDoor), norm(self.positionRightSensor - positionDoor)];
         end
-%         
-% <<<<<<< HEAD
-%         function bearing_difference = getBearingDifference(self,positionDoor)
-%             delta_x = positionDoor(1) - self.position(1,1) ;
-%             delta_y = positionDoor(2) - self.position(2,1);
-%             theta = tan(delta_y/delta_x);
-%             bearing_difference = self.position(3,1) - theta;
-% %         end
-%         
-%         
-%         function nextStep(self, positionFire, positionDoor)
-%             distanceToFire = self.getDistanceToFire(positionFire);
-%             distanceToDoor = self.getDistanceToDoor(positionDoor);
-% %             bearing_difference = self.getBearingDifference(positionDoor);
-% %             
-% %             if bearing_difference > 0
-% %                 omegaLeftWheel = bearing_difference;
-% %                 omegaRightWheel = 0.5*omegaLeftWheel;
-% %             else
-% %                 omegaRightWheel = bearing_difference;
-% %                 omegaLeftWheel = 0.5*omegaRightWheel;
-% %             end
-% %             
-%             
-%                         omegaLeftWheel = 1000 * distanceToDoor(1) + 0.5 * distanceToFire(2);
-%                         omegaRightWheel = 1000 * distanceToDoor(2) + 0.5 * distanceToFire(1);
-% 
-%             
-% =======
+
         function faceDoor(self, positionDoor)
             angle = self.getAngleToDoor(positionDoor);
             if (angle > 0)
@@ -128,18 +100,19 @@ classdef Vehicle < handle
             end
         end
         
-        function nextStep(self, positionFire)
+        function nextStep(self)
             
             if (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.2)
                 % only proceed calculation if it has not reached the exit
                 if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.2))
                     % Only proceed if vehicle is not at target door
-                    distanceToFire = self.getDistanceToFire(positionFire);
-                    if (~self.isFireInRoom(self.room, positionFire))
-                        % only consider the fire if it is in the current
-                        % room
+                    
+                    if (self.room.hasFire())
+                        distanceToFire = self.getDistanceToFire(self.room.firePositions);
+                    else
                         distanceToFire = [1000;1000];
                     end
+                    
                     distanceToDoor = self.getDistanceToDoor([self.target.x; self.target.y]);
                     
                     omegaLeftWheel = 10 * distanceToDoor(1) + 5 * distanceToFire(2);
@@ -187,7 +160,8 @@ classdef Vehicle < handle
                             % door with the lowest cost
                             if (lastDoor.id ~= doors(i).id)
                                 % For each door in the room that is not the last door the vehicle went through
-                                cost = self.costs(lastDoor.id) + self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
+%                                 cost = self.costs(lastDoor.id) + self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
+                                cost = self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
                                 if (cost < lowestCost)
                                     lowestCost = cost;
                                 end
@@ -198,9 +172,10 @@ classdef Vehicle < handle
                     self.costs(lastDoor.id) = lowestCost;
                     
                     % immediately check the room after going into a new one
-                    % If room has a fire, update cost to +30 
+                    % If room has a fire, add 30 to every door in the room
+                    % apart from the the last door
                     doors = self.room.doors;
-                    if (self.isFireInRoom(self.room, positionFire))
+                    if (self.room.hasFire())
                         for i = 1: numel(doors)
                             if (lastDoor.id ~= doors(i).id)
                                 self.costs(doors(i).id) = self.costs(doors(i).id) + 30;
@@ -227,25 +202,12 @@ classdef Vehicle < handle
         
         
         function angle = getAngleToDoor(self, positionDoor)
-%             bearingOfDoor = atan((positionDoor(2) - self.position(2)) / (positionDoor(1) - self.position(1)));
-%             angle = bearingOfDoor - self.position(3);
-%             if (angle > pi)
-%                 angle = angle - 2 * pi;
-%             elseif (angle < -pi)
-%                 angle = angle + 2 * pi;
-%                 
-%             end
 
             u = [positionDoor(1) - self.position(1), positionDoor(2) - self.position(2)];
             v = [(self.positionLeftSensor(1) + self.positionRightSensor(1)) / 2 - self.position(1), (self.positionLeftSensor(2) + self.positionRightSensor(2)) / 2- self.position(2)];
 
             cosTheta = dot(u,v)/(norm(u)*norm(v));
             angle = -acos(cosTheta);
-
-%             u = complex(positionDoor(1) - self.position(1), positionDoor(2) - self.position(2));
-%             v = complex((self.positionLeftSensor(1) + self.positionRightSensor(1)) / 2 - self.position(1), (self.positionLeftSensor(2) + self.positionRightSensor(2)) / 2 - self.position(2));
-%             angleInRadian = angle(u - v);
-% >>>>>>> 716d0a7ff65cad3971d70394060366a9840ef93d
             
         end
         
@@ -257,14 +219,7 @@ classdef Vehicle < handle
                 end
             end
         end
-        
-        function fireInRoom = isFireInRoom(self, room, positionFire)
-            if ((positionFire(1) < room.topRight(1)) && (positionFire(1) > room.topLeft(1)) && (positionFire(2) > room.bottomLeft(2)) && (positionFire(2) < room.topRight(2)))
-                fireInRoom = true;
-            else
-                fireInRoom = false;
-            end
-        end
+       
         
         function initialiseCosts(self)
             
@@ -322,7 +277,7 @@ classdef Vehicle < handle
             doors = room.doors;
             lowestCost = 1000; % arbitrary
             for i = 1: numel(doors)
-                cost = self.costs(doors(i).id);
+                cost = self.costs(doors(i).id) + norm(self.position(1:2) - [doors(i).x; doors(i).y]);
                 if ( cost < lowestCost)
                     lowestCost = cost;
                     target = doors(i);

@@ -22,7 +22,7 @@ classdef Door < handle
         
         function draw(self)
             
-            lineHandle = line(0,0,'color','w','LineWidth',2);   %left side of vehicle
+            lineHandle = line(0,0,'color','c','LineWidth',2);   %left side of vehicle
             
             if (self.orientation == 0) 
                 % vertical
