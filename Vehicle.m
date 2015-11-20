@@ -17,13 +17,22 @@ classdef Vehicle < handle
         rightWheelHandle;  %wheel right
         leftSensorHandle;   %sensor left
         rightSensorHandle;   %sensor right
+        
+        room; % the room which it is in
+        
+        rooms;
+        doors;
+        
+        costs;
+        
+        target;
     end
     
     methods
-        function obj = Vehicle(position)
+        function obj = Vehicle(position, rooms, doors)
             
             obj.position = position;
-            obj.positionHistory = [position];
+            obj.positionHistory = (position);
             obj.positionLeftSensor = position(1:2) + obj.shaftLength/2*[cos(position(3));sin(position(3))] + ...
                 obj.distanceBetweenSensors/2*[-sin(position(3));cos(position(3))];
             obj.positionRightSensor = position(1:2) + obj.shaftLength/2*[cos(position(3));sin(position(3))] + ...
@@ -37,13 +46,26 @@ classdef Vehicle < handle
             obj.rightWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel right
             obj.leftSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor left
             obj.rightSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor right
+            
+            obj.rooms = rooms;
+            obj.room = obj.getRoom(rooms);
+            
+            obj.doors = doors;
+            
+            obj.initialiseCosts();
+            
+            obj.target = obj.getTarget(obj.room);
+            
+            obj.faceDoor([obj.target.x, obj.target.y]);
         end
         
         function updatePosition(self, omegaLeftWheel, omegaRightWheel)
-            dt = 10;
             velocity = (omegaLeftWheel*self.wheelRadius + omegaRightWheel*self.wheelRadius)/2; %this might be the velocity of car
             dphi = (omegaRightWheel*self.wheelRadius - omegaLeftWheel*self.wheelRadius)/2/(self.shaftLength/2); % Remove minus sign to switch polarity, now it goes away from fire
             % minus sign is changing going towards/away from lightsource
+            
+            dt = 5; % how much the animation is
+            
             self.position = self.position + [velocity*cos(self.position(3));velocity*sin(self.position(3));dphi]*dt;
             self.positionLeftSensor = self.position(1:2) + self.shaftLength/2*[cos(self.position(3));sin(self.position(3))] + self.distanceBetweenSensors/2*[-sin(self.position(3));cos(self.position(3))];
             self.positionRightSensor = self.position(1:2) + self.shaftLength/2*[cos(self.position(3));sin(self.position(3))] + self.distanceBetweenSensors/2*[sin(self.position(3));-cos(self.position(3))];
@@ -62,63 +84,254 @@ classdef Vehicle < handle
             % sensor]
             distance = [norm(self.positionLeftSensor - positionDoor), norm(self.positionRightSensor - positionDoor)];
         end
-        
-        function bearing_difference = getBearingDifference(self,positionDoor)
-            delta_x = positionDoor(1) - self.position(1,1) ;
-            delta_y = positionDoor(2) - self.position(2,1);
-            theta = tan(delta_y/delta_x);
-            bearing_difference = self.position(3,1) - theta;
-%         end
-        
-        
-        function nextStep(self, positionFire, positionDoor)
-            distanceToFire = self.getDistanceToFire(positionFire);
-            distanceToDoor = self.getDistanceToDoor(positionDoor);
-%             bearing_difference = self.getBearingDifference(positionDoor);
+%         
+% <<<<<<< HEAD
+%         function bearing_difference = getBearingDifference(self,positionDoor)
+%             delta_x = positionDoor(1) - self.position(1,1) ;
+%             delta_y = positionDoor(2) - self.position(2,1);
+%             theta = tan(delta_y/delta_x);
+%             bearing_difference = self.position(3,1) - theta;
+% %         end
+%         
+%         
+%         function nextStep(self, positionFire, positionDoor)
+%             distanceToFire = self.getDistanceToFire(positionFire);
+%             distanceToDoor = self.getDistanceToDoor(positionDoor);
+% %             bearing_difference = self.getBearingDifference(positionDoor);
+% %             
+% %             if bearing_difference > 0
+% %                 omegaLeftWheel = bearing_difference;
+% %                 omegaRightWheel = 0.5*omegaLeftWheel;
+% %             else
+% %                 omegaRightWheel = bearing_difference;
+% %                 omegaLeftWheel = 0.5*omegaRightWheel;
+% %             end
+% %             
 %             
-%             if bearing_difference > 0
-%                 omegaLeftWheel = bearing_difference;
-%                 omegaRightWheel = 0.5*omegaLeftWheel;
-%             else
-%                 omegaRightWheel = bearing_difference;
-%                 omegaLeftWheel = 0.5*omegaRightWheel;
-%             end
+%                         omegaLeftWheel = 1000 * distanceToDoor(1) + 0.5 * distanceToFire(2);
+%                         omegaRightWheel = 1000 * distanceToDoor(2) + 0.5 * distanceToFire(1);
+% 
 %             
-            
-                        omegaLeftWheel = 1000 * distanceToDoor(1) + 0.5 * distanceToFire(2);
-                        omegaRightWheel = 1000 * distanceToDoor(2) + 0.5 * distanceToFire(1);
-
-            
-            
-            if (omegaLeftWheel > omegaRightWheel)
-                
-                omegaRightWheel = omegaRightWheel / (2 * omegaLeftWheel);
-                omegaLeftWheel = 0.5;
+% =======
+        function faceDoor(self, positionDoor)
+            angle = self.getAngleToDoor(positionDoor);
+            if (angle > 0)
+                while (abs(angle) > 0.05)
+                    self.updatePosition(-0.1, 0.1);
+                    angle = self.getAngleToDoor(positionDoor);
+                end
             else
-                omegaLeftWheel = omegaLeftWheel / (2 * omegaRightWheel);
-                omegaRightWheel = 0.5;
+                while (abs(angle) > 0.05)
+                    self.updatePosition(0.1, -0.1);
+                    angle = self.getAngleToDoor(positionDoor);
+                end
             end
+        end
+        
+        function nextStep(self, positionFire)
             
-            self.updatePosition(omegaLeftWheel, omegaRightWheel);
-            
-            
+            if (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.2)
+                % only proceed calculation if it has not reached the exit
+                if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.2))
+                    % Only proceed if vehicle is not at target door
+                    distanceToFire = self.getDistanceToFire(positionFire);
+                    if (~self.isFireInRoom(self.room, positionFire))
+                        % only consider the fire if it is in the current
+                        % room
+                        distanceToFire = [1000;1000];
+                    end
+                    distanceToDoor = self.getDistanceToDoor([self.target.x; self.target.y]);
+                    
+                    omegaLeftWheel = 10 * distanceToDoor(1) + 5 * distanceToFire(2);
+                    omegaRightWheel = 10 * distanceToDoor(2) + 5 * distanceToFire(1);
+                    
+                    if (omegaLeftWheel > omegaRightWheel)
+                        
+                        omegaRightWheel = omegaRightWheel / (2.5 * omegaLeftWheel);
+                        omegaLeftWheel = 0.5;
+                    else
+                        omegaLeftWheel = omegaLeftWheel / (2.5 * omegaRightWheel);
+                        omegaRightWheel = 0.5;
+                    end
+                    
+                    self.updatePosition(omegaLeftWheel, omegaRightWheel);
+                else
+                    % we have reached the target, change to the next target
+                    % update the cost
+                    
+                    % update the room it is in (this logic is needed coz it
+                    % has not really moved to the next room yet
+                    
+                    lastDoor = self.target;
+                    lastRoom = self.room; % self.room and target will be updated soon, just save a copy
+                    
+                    %% auxilliary function to find the next room
+                    potentialRooms = self.target.rooms;
+                    
+                    % This updates our current room to the next one
+                    if (potentialRooms(1) == self.room)
+                        self.room = potentialRooms(2);
+                    else
+                        self.room = potentialRooms(1);
+                    end
+                    %%                    
+                    % update the cost of the door just went through
+                    % (reluctant to go back / change in cost of other
+                    % exits)
+                    doors = lastRoom.doors;
+                    lowestCost = 1000; % arbitrary, if the room has only one door, the cost is really high (no exit)
+                    if (numel(doors) ~= 1)
+                        for i = 1: numel(doors)
+                            % Loop through all the doors in the previous
+                            % room and update the cost of lastDoor by using only the
+                            % door with the lowest cost
+                            if (lastDoor.id ~= doors(i).id)
+                                % For each door in the room that is not the last door the vehicle went through
+                                cost = self.costs(lastDoor.id) + self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
+                                if (cost < lowestCost)
+                                    lowestCost = cost;
+                                end
+                            end
+                        end
+                    end
+                    
+                    self.costs(lastDoor.id) = lowestCost;
+                    
+                    % immediately check the room after going into a new one
+                    % If room has a fire, update cost to +30 
+                    doors = self.room.doors;
+                    if (self.isFireInRoom(self.room, positionFire))
+                        for i = 1: numel(doors)
+                            if (lastDoor.id ~= doors(i).id)
+                                self.costs(doors(i).id) = self.costs(doors(i).id) + 30;
+                            end
+                        end
+                    end
+                    
+                    
+                    
+                    % change the target
+                    
+                    self.target = self.getTarget(self.room);
+                    
+                    
+                    
+                    
+                    % face the door
+                    self.faceDoor([self.target.x, self.target.y]);
+                end
+            end
         end
         
         
         
         
-        %
-        %         function updatePosition(self, x, y, bearing)
-        %             self.x = x;
-        %             self.y = y;
-        %             self.bearing = bearing;
-        %
-        %             self.pathHistory = [pathHistory; x, y, bearing];
-        %         end
+        function angle = getAngleToDoor(self, positionDoor)
+%             bearingOfDoor = atan((positionDoor(2) - self.position(2)) / (positionDoor(1) - self.position(1)));
+%             angle = bearingOfDoor - self.position(3);
+%             if (angle > pi)
+%                 angle = angle - 2 * pi;
+%             elseif (angle < -pi)
+%                 angle = angle + 2 * pi;
+%                 
+%             end
+
+            u = [positionDoor(1) - self.position(1), positionDoor(2) - self.position(2)];
+            v = [(self.positionLeftSensor(1) + self.positionRightSensor(1)) / 2 - self.position(1), (self.positionLeftSensor(2) + self.positionRightSensor(2)) / 2- self.position(2)];
+
+            cosTheta = dot(u,v)/(norm(u)*norm(v));
+            angle = -acos(cosTheta);
+
+%             u = complex(positionDoor(1) - self.position(1), positionDoor(2) - self.position(2));
+%             v = complex((self.positionLeftSensor(1) + self.positionRightSensor(1)) / 2 - self.position(1), (self.positionLeftSensor(2) + self.positionRightSensor(2)) / 2 - self.position(2));
+%             angleInRadian = angle(u - v);
+% >>>>>>> 716d0a7ff65cad3971d70394060366a9840ef93d
+            
+        end
+        
+        function room = getRoom(self, rooms)
+            for i = 1: numel(rooms)
+                room = rooms(i);
+                if ((self.position(1) < room.topRight(1)) && (self.position(1) > room.topLeft(1)) && (self.position(2) > room.bottomLeft(2)) && (self.position(2) < room.topRight(2)))
+                    break;
+                end
+            end
+        end
+        
+        function fireInRoom = isFireInRoom(self, room, positionFire)
+            if ((positionFire(1) < room.topRight(1)) && (positionFire(1) > room.topLeft(1)) && (positionFire(2) > room.bottomLeft(2)) && (positionFire(2) < room.topRight(2)))
+                fireInRoom = true;
+            else
+                fireInRoom = false;
+            end
+        end
+        
+        function initialiseCosts(self)
+            
+            % initialise cost to a arbitrary high value
+            self.costs = ones(1, size(self.doors, 2)) * 100;
+            
+            checkedRoomIds = [];
+            
+            exit = self.doors(end);
+            self.costs(exit.id) = 1;
+            
+            rooms = exit.rooms;
+            
+            for i = 1:numel(rooms)
+                self.setCostsForRoom(rooms(i), exit, checkedRoomIds);
+            end
+        end
+        
+        function setCostsForRoom(self, room, referenceDoor, checkedRoomIds)
+            % referenceDoor is the door you came through
+            % 
+            if (room.id ~= self.room.id)
+                % it is not the room we are in
+                doors = room.doors;
+                
+                for i = 1:numel(doors)
+                    if (doors(i).id ~= referenceDoor.id)
+                        % check if cost has been set, reset cost if cost is
+                        % lower
+                        cost = self.costs(referenceDoor.id) + norm([doors(i).x, doors(i).y] - [referenceDoor.x, referenceDoor.y]);
+                        
+                        if (cost < self.costs(doors(i).id))
+                            self.costs(doors(i).id) = cost;
+                        end
+                    end
+                end
+                
+                checkedRoomIds = [checkedRoomIds, room.id];
+                
+              
+                for i = 1: numel(doors)
+                    rooms = doors(i).rooms;
+                    for j = 1: numel(rooms)
+                        if (~any(rooms(j).id == checkedRoomIds))
+                            % if this room has been checked before
+                            setCostsForRoom(self, rooms(j), doors(i), checkedRoomIds);
+                        end
+                    end
+                end
+            end
+        end
+        
+        function target = getTarget(self, room)
+            % Returns the door with the lowest cost in the room
+            doors = room.doors;
+            lowestCost = 1000; % arbitrary
+            for i = 1: numel(doors)
+                cost = self.costs(doors(i).id);
+                if ( cost < lowestCost)
+                    lowestCost = cost;
+                    target = doors(i);
+                end
+            end
+        end
+        
         
         function draw(self)
-            
-            
             r_c1 = self.position(1:2) + self.shaftLength/2*[-sin(self.position(3));cos(self.position(3))] - self.shaftLength/2*[cos(self.position(3));sin(self.position(3))];
             r_c2 = r_c1 + self.shaftLength*[cos(self.position(3));sin(self.position(3))];
             r_c3 = r_c2 + self.shaftLength*[sin(self.position(3));-cos(self.position(3))];
@@ -146,114 +359,3 @@ classdef Vehicle < handle
         
     end
 end
-
-% p_ls1 = [1;1];  %position light source
-% l_s = 0.1;      %shaft length vehicle
-% r_w = 0.02;     %radius wheel
-% d_s = 0.1;      %sensor distance
-% rho = 10;       %light intensity to rotational speed constant
-% dt = 1e-3;      %time increment
-% N = 31400;
-%
-% %% Initialisation
-% p_c = [0.6;0.6;pi/2];  %initial robot position and orientation
-% p_c_old = p_c;      %save old state for trajectory
-%
-% figure(1)
-% plot([p_c(1);p_c_old(1)],[p_c(2);p_c_old(2)])
-% hold on
-%
-% %positions of sensors 1 and 2
-% p_s1 = p_c(1:2) + l_s/2*[cos(p_c(3));sin(p_c(3))] + d_s/2*[-sin(p_c(3));cos(p_c(3))];
-% p_s2 = p_c(1:2) + l_s/2*[cos(p_c(3));sin(p_c(3))] + d_s/2*[sin(p_c(3));-cos(p_c(3))];
-%
-% %initialisation of animation
-% ll = line(0,0,'color','k','LineWidth',2);   %left side of vehicle
-% lr = line(0,0,'color','k','LineWidth',2);   %right side of vehicle
-% lf = line(0,0,'color','k','LineWidth',2);   %front of vehicle
-% lb = line(0,0,'color','k','LineWidth',2);   %back of vehile
-% lw1 = line(0,0,'color','k','LineWidth',5);  %wheel left
-% lw2 = line(0,0,'color','k','LineWidth',5);  %wheel right
-% ls1 = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor left
-% ls2 = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor right
-% lli1 = line(0,0,'color','r','Marker','.','MarkerSize',50);  %fire source
-%
-% %% Simulation
-% set(lli1,'xdata',p_ls1(1),'ydata',p_ls1(2))
-% axis([0 2 0 2])
-%
-% t = 0:dt:N;
-% for i = 1:N
-%
-%     r_ls1 = norm(p_s1-p_ls1);
-%     r_rs1 = norm(p_s2-p_ls1);
-%     % euclidean distance between position of the sensor and lightsource
-%
-%     omega_l = 1/r_ls1^2*rho - 1/(1.8*r_ls1)^3*rho;
-%     omega_r = 1/r_rs1^2*rho - 1/(1.8*r_rs1)^3*rho;
-%     % some arbitrary defining equation for how much the wheel turns
-%
-%     v_c = (omega_l*r_w + omega_r*r_w)/2; %this might be the velocity of car
-%     dphi = (omega_r*r_w - omega_l*r_w)/2/(l_s/2); % Remove minus sign to switch polarity, now it goes away from fire
-%     % minus sign is changing going towards/away from lightsource
-%
-%
-%
-%     if i>1
-%         p_c(:,i) = p_c(:,i-1) + [v_c*cos(p_c(3,i-1));v_c*sin(p_c(3,i-1));dphi]*dt;
-%         p_s1 = p_c(1:2,i) + l_s/2*[cos(p_c(3,i));sin(p_c(3,i))] + d_s/2*[-sin(p_c(3,i));cos(p_c(3,i))];
-%         p_s2 = p_c(1:2,i) + l_s/2*[cos(p_c(3,i));sin(p_c(3,i))] + d_s/2*[sin(p_c(3,i));-cos(p_c(3,i))];
-% %         p_ls1 = [0.5*sin(t(i)/5)+1;0.5*cos(t(i)/5)+1]; % constant fire
-% %         source position
-%     end
-% end
-%
-% p_c_old = p_c(:,1);
-% t_next = 0;   %variable for timing of frame capture
-% RepSpeed = 1; %replay speed
-% fps = 30;     %frames per second
-% tic
-%
-%
-% % drawWall(wall);
-% while toc < t(end)
-%
-%     % Animation
-%     if mod(toc,1/fps) > mod(toc,1/fps+dt)
-%
-%         idx = floor(toc/dt*RepSpeed);
-%         if idx>N
-%             break
-%         end
-%
-%         r_c1 = p_c(1:2,idx) + l_s/2*[-sin(p_c(3,idx));cos(p_c(3,idx))] - l_s/2*[cos(p_c(3,idx));sin(p_c(3,idx))];
-%         r_c2 = r_c1 + l_s*[cos(p_c(3,idx));sin(p_c(3,idx))];
-%         r_c3 = r_c2 + l_s*[sin(p_c(3,idx));-cos(p_c(3,idx))];
-%         r_c4 = r_c3 + l_s*[-cos(p_c(3,idx));-sin(p_c(3,idx))];
-%         r_w1 = [r_c1 + (r_c2-r_c1)/4,r_c1 + (r_c2-r_c1)*3/4];
-%         r_w2 = [r_c3 + (r_c4-r_c3)/4,r_c3 + (r_c4-r_c3)*3/4];
-%
-%         p_s1 = p_c(1:2,idx) + l_s/2*[cos(p_c(3,idx));sin(p_c(3,idx))] + d_s/2*[-sin(p_c(3,idx));cos(p_c(3,idx))];
-%         p_s2 = p_c(1:2,idx) + l_s/2*[cos(p_c(3,idx));sin(p_c(3,idx))] + d_s/2*[sin(p_c(3,idx));-cos(p_c(3,idx))];
-%
-% %         p_ls1 = [0.5*sin(t(idx)/5)+1;0.5*cos(t(idx)/5)+1];
-%
-%         plot([p_c(1,idx);p_c_old(1)],[p_c(2,idx);p_c_old(2)])
-%
-%         set(ll,'xdata',[r_c1(1) r_c2(1)],'ydata',[r_c1(2) r_c2(2)])
-%         set(lf,'xdata',[r_c2(1) r_c3(1)],'ydata',[r_c2(2) r_c3(2)])
-%         set(lr,'xdata',[r_c3(1) r_c4(1)],'ydata',[r_c3(2) r_c4(2)])
-%         set(lb,'xdata',[r_c4(1) r_c1(1)],'ydata',[r_c4(2) r_c1(2)])
-%         set(lw1,'xdata',[r_w1(1,1) r_w1(1,2)],'ydata',[r_w1(2,1) r_w1(2,2)])
-%         set(lw2,'xdata',[r_w2(1,1) r_w2(1,2)],'ydata',[r_w2(2,1) r_w2(2,2)])
-%         set(ls1,'xdata',p_s1(1),'ydata',p_s1(2))
-%         set(ls2,'xdata',p_s2(1),'ydata',p_s2(2))
-% %         set(lli1,'xdata',p_ls1(1),'ydata',p_ls1(2))
-%
-%         drawnow
-%         p_c_old = p_c(:,idx);
-%
-%         getDistanceBetweenPointAndLine(p_c(:,idx),wall(1,:))
-%         getDistanceBetweenPointAndLine(p_c(:,idx),wall(2,:))
-%     end
-% end
