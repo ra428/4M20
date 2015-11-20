@@ -64,7 +64,7 @@ classdef Vehicle < handle
             dphi = (omegaRightWheel*self.wheelRadius - omegaLeftWheel*self.wheelRadius)/2/(self.shaftLength/2); % Remove minus sign to switch polarity, now it goes away from fire
             % minus sign is changing going towards/away from lightsource
             
-            dt = 5; % how much the animation is
+            dt = 5; % how fast the animation is (the faster the animation, the less accurate the computation)
             
             self.position = self.position + [velocity*cos(self.position(3));velocity*sin(self.position(3));dphi]*dt;
             self.positionLeftSensor = self.position(1:2) + self.shaftLength/2*[cos(self.position(3));sin(self.position(3))] + self.distanceBetweenSensors/2*[-sin(self.position(3));cos(self.position(3))];

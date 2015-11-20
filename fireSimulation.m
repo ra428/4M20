@@ -44,7 +44,7 @@ rooms = [room1, room2, room3, room4, room5, room6];
 
 vehicles = [];
 
-for i = 1:10
+for i = 1:50
     initialX = rand(1, 1) * 9 + 1;
     initialY = rand(1, 1) * 9 + 1;
     initialBearing = rand(1, 1) * 2 * pi;
