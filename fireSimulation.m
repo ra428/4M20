@@ -1,14 +1,14 @@
 figure(1);
 hold on;
-axis([1 10 1 10])
+axis([1 15 1 10])
 
-exitPosition = [10; 1];
+exitPosition = [10; 2];
 firePosition = [2; 2];
 
 
 drawRoom(exitPosition, firePosition, []);
 
-v = Vehicle([2;5;-pi/2]);
+v = Vehicle([5;2.5;pi/2]);
 i = 0;
 while (i < 500)
     

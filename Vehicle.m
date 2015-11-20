@@ -63,12 +63,32 @@ classdef Vehicle < handle
             distance = [norm(self.positionLeftSensor - positionDoor), norm(self.positionRightSensor - positionDoor)];
         end
         
+        function bearing_difference = getBearingDifference(self,positionDoor)
+            delta_x = positionDoor(1) - self.position(1,1) ;
+            delta_y = positionDoor(2) - self.position(2,1);
+            theta = tan(delta_y/delta_x);
+            bearing_difference = self.position(3,1) - theta;
+%         end
+        
+        
         function nextStep(self, positionFire, positionDoor)
             distanceToFire = self.getDistanceToFire(positionFire);
             distanceToDoor = self.getDistanceToDoor(positionDoor);
+%             bearing_difference = self.getBearingDifference(positionDoor);
+%             
+%             if bearing_difference > 0
+%                 omegaLeftWheel = bearing_difference;
+%                 omegaRightWheel = 0.5*omegaLeftWheel;
+%             else
+%                 omegaRightWheel = bearing_difference;
+%                 omegaLeftWheel = 0.5*omegaRightWheel;
+%             end
+%             
             
-            omegaLeftWheel = 10 * distanceToDoor(1) + 0.5 * distanceToFire(2);
-            omegaRightWheel = 10 * distanceToDoor(2) + 0.5 * distanceToFire(1);
+                        omegaLeftWheel = 1000 * distanceToDoor(1) + 0.5 * distanceToFire(2);
+                        omegaRightWheel = 1000 * distanceToDoor(2) + 0.5 * distanceToFire(1);
+
+            
             
             if (omegaLeftWheel > omegaRightWheel)
                 
