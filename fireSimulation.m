@@ -52,7 +52,7 @@ drawRooms(firePosition, rooms, doors);
 while (norm(v.position(1:2) - [exit.x; exit.y]) > 0.2)
     
     v.draw();
-    pause(0.0001);
+%     pause(0.0000001);
 
     v.nextStep(firePosition);
     
