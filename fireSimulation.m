@@ -2,24 +2,13 @@ close all;
 clear all;
 figure(1);
 hold on;
-axis([0 11 0 11])
 
-% firePosition = [2; 6];
-%
-% door1 = Door(1, 2.5, 5);
-% door2 = Door(2, 5, 7.5);
-% exit = Door(3, 7.5, 1);
-% doors = [door1, door2, exit]; % the last entry is always the exit
-%
-% room1 = Room(1, [1,5], [5,5], [1,1], [5,1], [door1]);
-% room2 = Room(2, [1,10], [5,10], [1,5], [5,5], [door1, door2]);
-% room3 = Room(3, [5,10], [10,10], [5,1], [10,1], [door2, exit]);
-%
-% rooms = [room1, room2, room3];
-%
-% v = Vehicle([2.5;2.5;pi/2], rooms, doors);
+axis([1 15 1 10])
 
-firePosition = [6; 2];
+exitPosition = [10; 2];
+firePosition = [6; 3];
+
+
 
 door1 = Door(1, 1.5, 5);
 door2 = Door(2, 3.5, 5);
@@ -38,9 +27,8 @@ room4 = Room(4, [8,10], [10,10], [8,5], [10,5], [door6, door7]);
 room5 = Room(5, [4,10], [8,10], [4,5], [8,5], [door3, door7]);
 room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door1, door2, door3]);
 
-rooms = [room1, room2, room3, room4, room5, room6];
 
-% v = Vehicle([9;2.5;pi/2], rooms, doors);
+rooms = [room1, room2, room3, room4, room5, room6];
 
 vehicles = [];
 
@@ -48,13 +36,11 @@ for i = 1:50
     initialX = rand(1, 1) * 9 + 1;
     initialY = rand(1, 1) * 9 + 1;
     initialBearing = rand(1, 1) * 2 * pi;
-    
+
     vehicles = [vehicles, Vehicle([initialX; initialY; initialBearing], rooms, doors)];
 end
 
-
 drawRooms(firePosition, rooms, doors);
-
 
 while (true)
     for i = 1:numel(vehicles) 
@@ -62,6 +48,6 @@ while (true)
         vehicles(i).nextStep(firePosition);
     end
     
-    pause(0.001);
+%     pause(0.001);
     
 end

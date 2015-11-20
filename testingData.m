@@ -1,5 +1,3 @@
-
-
 % testing data 1
 clear all;
 
