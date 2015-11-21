@@ -21,6 +21,9 @@ classdef Vehicle < handle
         leftSensorHandle;   %sensor left
         rightSensorHandle;   %sensor right
         
+        positionHandle; % only use it to draw a blob instead of the full
+            %left/right/front/back and wheels of the vehicle
+        
         room; % the room which it is in
         
         rooms;
@@ -49,11 +52,15 @@ classdef Vehicle < handle
             obj.leftLineHandle = line(0,0,'color','k','LineWidth',2);   %left side of vehicle
             obj.rightLineHandle = line(0,0,'color','k','LineWidth',2);   %right side of vehicle
             obj.frontLineHandle = line(0,0,'color','k','LineWidth',2);   %front of vehicle
-            obj.backLineHandle = line(0,0,'color','k','LineWidth',2);   %back of vehile
+            obj.backLineHandle = line(0,0,'color','k','LineWidth',2);   %back of vehicle
             obj.leftWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel left
             obj.rightWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel right
             obj.leftSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor left
             obj.rightSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor right
+            
+            obj.positionHandle = line(0,0,'color','k','Marker','.','MarkerSize',20);
+            %position. only use it to draw a blob instead of the full
+            %left/right/front/back and wheels of the vehicle
             
             obj.rooms = rooms;
             obj.room = obj.getRoom(rooms);
@@ -161,7 +168,7 @@ classdef Vehicle < handle
                     
                     nearbyWalls = self.getNearbyWalls();
                     if (size(nearbyWalls, 1) ~= 0)
-                       self.faceDoor([self.target.x, self.target.y]);
+                        self.faceDoor([self.target.x, self.target.y]);
                     end
                     
                     for i = 1: size(nearbyWalls,1)
@@ -170,7 +177,7 @@ classdef Vehicle < handle
                         omegaLeftWheel = omegaLeftWheel + 5 * distanceRightSensor;
                         omegaRightWheel = omegaRightWheel + 5 * distanceLeftSensor;
                     end
-
+                    
                     
                     % normalise the speed
                     if (omegaLeftWheel > omegaRightWheel)
@@ -379,6 +386,17 @@ classdef Vehicle < handle
             set(self.rightWheelHandle,'xdata',[r_w2(1,1) r_w2(1,2)],'ydata',[r_w2(2,1) r_w2(2,2)])
             set(self.leftSensorHandle,'xdata',p_s1(1),'ydata',p_s1(2))
             set(self.rightSensorHandle,'xdata',p_s2(1),'ydata',p_s2(2))
+            
+            drawnow;
+        end
+        
+        function simpleDraw(self)
+            
+            plot(self.positionHistory(1, :), self.positionHistory(2, :));
+            
+            set(self.positionHandle,'xdata',self.position(1),'ydata',self.position(2));
+            set(self.leftSensorHandle,'xdata',self.positionLeftSensor(1),'ydata',self.positionLeftSensor(2));
+            set(self.rightSensorHandle,'xdata',self.positionRightSensor(1),'ydata',self.positionRightSensor(2));
             
             drawnow;
         end

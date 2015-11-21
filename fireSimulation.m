@@ -60,7 +60,8 @@ classdef FireSimulation < handle
             
             while (true)
                 for i = 1:numel(vehicles)
-                    vehicles(i).draw();
+                    %                     vehicles(i).draw();
+                    vehicles(i).simpleDraw();
                     vehicles(i).nextStep(vehicles);
                 end
                 
