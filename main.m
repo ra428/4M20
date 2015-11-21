@@ -1,0 +1,3 @@
+fireSimulation = FireSimulation();
+
+fireSimulation.run();
