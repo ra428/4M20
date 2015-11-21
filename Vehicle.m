@@ -26,6 +26,7 @@ classdef Vehicle < handle
         costs;
         
         target;
+        roomsWithFire;
     end
     
     methods
@@ -57,6 +58,8 @@ classdef Vehicle < handle
             obj.target = obj.getTarget(obj.room);
             
             obj.faceDoor([obj.target.x, obj.target.y]);
+            
+            obj.roomsWithFire = [];
         end
         
         function updatePosition(self, omegaLeftWheel, omegaRightWheel)
@@ -175,10 +178,11 @@ classdef Vehicle < handle
                     % If room has a fire, add 30 to every door in the room
                     % apart from the the last door
                     doors = self.room.doors;
-                    if (self.room.hasFire())
+                    if (self.room.hasFire() && ~any(self.room.id == self.roomsWithFire))
                         for i = 1: numel(doors)
                             if (lastDoor.id ~= doors(i).id)
                                 self.costs(doors(i).id) = self.costs(doors(i).id) + 30;
+                                self.roomsWithFire = [self.roomsWithFire, self.room.id];
                             end
                         end
                     end
@@ -259,7 +263,7 @@ classdef Vehicle < handle
                 
                 checkedRoomIds = [checkedRoomIds, room.id];
                 
-              
+             
                 for i = 1: numel(doors)
                     rooms = doors(i).rooms;
                     for j = 1: numel(rooms)
