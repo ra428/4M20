@@ -210,98 +210,61 @@ classdef Vehicle < handle
                             self.room = potentialRooms(1);
                         end
                         %%
-                        %                         % update the cost of the door just went through
-                        %                         % (reluctant to go back / change in cost of other
-                        %                         % exits)
-                        %                         doors = lastRoom.doors;
-                        %                         lowestCost = 1000; % arbitrary, if the room has only one door, the cost is really high (no exit)
-                        %                         if (numel(doors) ~= 1)
-                        %                             for i = 1: numel(doors)
-                        %                                 % Loop through all the doors in the previous
-                        %                                 % room and update the cost of lastDoor by using only the
-                        %                                 % door with the lowest cost
-                        %                                 if (lastDoor.id ~= doors(i).id)
-                        %                                     % For each door in the room that is not the last door the vehicle went through
-                        %                                     %                                 cost = self.costs(lastDoor.id) + self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
-                        %                                     cost = self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
-                        %                                     if (cost < lowestCost)
-                        %                                         lowestCost = cost;
-                        %                                     end
-                        %                                 end
-                        %                             end
-                        %                         end
-                        %
-                        %                         self.costs(lastDoor.id) = lowestCost;
-                        %
-                        %                         % immediately check the room after going into a new one
-                        %                         % If room has a fire, add 30 to every door in the room
-                        %                         % apart from the the last door
-                        %                         doors = self.room.doors;
-                        %                         if (self.room.hasFire() && ~any(self.room.id == self.roomsWithFire))
-                        %                             for i = 1: numel(doors)
-                        %                                 if (lastDoor.id ~= doors(i).id)
-                        %                                     self.costs(doors(i).id) = self.costs(doors(i).id) + 30;
-                        %                                     self.roomsWithFire = [self.roomsWithFire, self.room.id];
-                        %                                 end
-                        %                             end
-                        %                         end
-                        
-                        %                         % check the costs of doors from other vehicles,
-                        %                         % always take the highest cost of a particular door
-                        %                         % from all the vehicles in the room
-                        %
-                        %                         vehiclesInRoom = self.getVehiclesInRoom(vehicles);
-                        %                         % loop through all the doors
-                        %                         highestCosts = self.costs;
-                        %                         allRoomsWithFire = [];
-                        %                         for i = 1: numel(vehiclesInRoom)
-                        %                             for j = 1: numel(self.doors)
-                        %
-                        %
-                        %                                 % compare the cost of vehicle(j) at door i
-                        %                                 % to the highest cost of that door, keep
-                        %                                 % the higest cost
-                        %                                 if (highestCosts(self.doors(j).id) < vehiclesInRoom(i).costs(self.doors(j).id))
-                        %                                     highestCosts(self.doors(j).id) = vehiclesInRoom(i).costs(self.doors(j).id);
-                        %                                 end
-                        %                             end
-                        %
-                        %                             for k = 1: numel(vehiclesInRoom(i).roomsWithFire)
-                        %                                 % if allRoomsWithFire does not contain a
-                        %                                 % room with fire from a vehicle, then add
-                        %                                 % that room to allRoomsWithFire
-                        %                                 if (~any(vehiclesInRoom(i).roomsWithFire(k) == allRoomsWithFire))
-                        %                                     allRoomsWithFire = [allRoomsWithFire, vehiclesInRoom(i).roomsWithFire(k)];
-                        %                                 end
-                        %                             end
-                        %                         end
-                        
-                        %                         for i  = 1: numel(vehiclesInRoom)
-                        %                             vehiclesInRoom(i).costs = highestCosts;
-                        %                             vehiclesInRoom(i).roomsWithFire = allRoomsWithFire;
-                        %                             vehiclesInRoom(i).target = vehiclesInRoom(i).getTarget(self.room);
-                        %                             vehiclesInRoom(i).faceDoor([vehiclesInRoom(i).target.x, vehiclesInRoom(i).target.y]);
-                        %                         end
-                        
-                        
-                        %                         self.costs = highestCosts;
-                        %                         self.roomsWithFire = allRoomsWithFire;
-                        
-                        
-                        
-                        % immediately check the room after going into a new one
-                        % If room has a fire, update roomsWithFire
-                        
-                        if (self.room.hasFire() && ~any(self.room.id == self.roomsWithFire))
-                            self.roomsWithFire = [self.roomsWithFire, self.room.id];
+                        % update the cost of the door just went through
+                        % (reluctant to go back / change in cost of other
+                        % exits)
+                        doors = lastRoom.doors;
+                        lowestCost = 1000; % arbitrary, if the room has only one door, the cost is really high (no exit)
+                        if (numel(doors) ~= 1)
+                            for i = 1: numel(doors)
+                                % Loop through all the doors in the previous
+                                % room and update the cost of lastDoor by using only the
+                                % door with the lowest cost
+                                if (lastDoor.id ~= doors(i).id)
+                                    % For each door in the room that is not the last door the vehicle went through
+                                    %                                 cost = self.costs(lastDoor.id) + self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
+                                    cost = self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
+                                    if (cost < lowestCost)
+                                        lowestCost = cost;
+                                    end
+                                end
+                            end
                         end
                         
-                        % share the information of RoomsWithFire
+                        self.costs(lastDoor.id) = lowestCost;
+                        
+                        % immediately check the room after going into a new one
+                        % If room has a fire, add 30 to every door in the room
+                        % apart from the the last door
+                        doors = self.room.doors;
+                        if (self.room.hasFire() && ~any(self.room.id == self.roomsWithFire))
+                            for i = 1: numel(doors)
+                                if (lastDoor.id ~= doors(i).id)
+                                    self.costs(doors(i).id) = self.costs(doors(i).id) + 30;
+                                    self.roomsWithFire = [self.roomsWithFire, self.room.id];
+                                end
+                            end
+                        end
+                        
+                        % check the costs of doors from other vehicles,
+                        % always take the highest cost of a particular door
+                        % from all the vehicles in the room
                         
                         vehiclesInRoom = self.getVehiclesInRoom(vehicles);
                         % loop through all the doors
-                        allRoomsWithFire = self.roomsWithFire;
+                        highestCosts = self.costs;
+                        allRoomsWithFire = [];
                         for i = 1: numel(vehiclesInRoom)
+                            for j = 1: numel(self.doors)
+                            
+                                
+                                % compare the cost of vehicle(j) at door i
+                                % to the highest cost of that door, keep
+                                % the higest cost
+                                if (highestCosts(self.doors(j).id) < vehiclesInRoom(i).costs(self.doors(j).id))
+                                    highestCosts(self.doors(j).id) = vehiclesInRoom(i).costs(self.doors(j).id);                               
+                                end
+                            end   
                             
                             for k = 1: numel(vehiclesInRoom(i).roomsWithFire)
                                 % if allRoomsWithFire does not contain a
@@ -312,16 +275,18 @@ classdef Vehicle < handle
                                 end
                             end
                         end
+                               
+                        for i  = 1: numel(vehiclesInRoom)
+                            vehiclesInRoom(i).costs = highestCosts;
+                            vehiclesInRoom(i).roomsWithFire = allRoomsWithFire;
+                            vehiclesInRoom(i).target = vehiclesInRoom(i).getTarget(self.room);
+                            vehiclesInRoom(i).faceDoor([vehiclesInRoom(i).target.x, vehiclesInRoom(i).target.y]);
+                        end
+                            
                         
-                        
-                        
-                        
+                        self.costs = highestCosts;
                         self.roomsWithFire = allRoomsWithFire;
                         
-                        
-                        % update the costs of the all the doors on the map
-                        %                         self.updateCosts(lastDoor);
-                        self.initialiseCosts();
                         
                         % change the target
                         
@@ -329,16 +294,6 @@ classdef Vehicle < handle
                         
                         % face the door
                         self.faceDoor([self.target.x, self.target.y]);
-                        
-                        % now update other vehicles and force them to
-                        % rethink about the route
-                        for i  = 1: numel(vehiclesInRoom)
-                            vehiclesInRoom(i).roomsWithFire = allRoomsWithFire;
-                            %                             vehiclesInRoom(i).updateCosts(lastDoor);
-                            vehiclesInRoom(i).initialiseCosts();
-                            vehiclesInRoom(i).target = vehiclesInRoom(i).getTarget(self.room);
-                            vehiclesInRoom(i).faceDoor([vehiclesInRoom(i).target.x, vehiclesInRoom(i).target.y]);
-                        end
                     end
                 else
                     % it has reached the exit
@@ -385,62 +340,10 @@ classdef Vehicle < handle
         end
         
         
-        %         function initialiseCosts(self)
-        %
-        %             % initialise cost to a arbitrary high value
-        %             self.costs = ones(1, size(self.doors, 2)) * 1000;
-        %
-        %             checkedRoomIds = [];
-        %
-        %             exit = self.doors(end);
-        %             self.costs(exit.id) = 1;
-        %
-        %             rooms = exit.rooms;
-        %
-        %             for i = 1:numel(rooms)
-        %                 self.setCostsForRoom(rooms(i), exit, checkedRoomIds);
-        %             end
-        %         end
-        %
-        %         function setCostsForRoom(self, room, referenceDoor, checkedRoomIds)
-        %             % referenceDoor is the door you came through
-        %             %
-        %             if (room.id ~= self.room.id)
-        %                 % it is not the room we are in
-        %                 doors = room.doors;
-        %
-        %                 for i = 1:numel(doors)
-        %                     if (doors(i).id ~= referenceDoor.id)
-        %                         % check if cost has been set, reset cost if cost is
-        %                         % lower
-        %                         cost = self.costs(referenceDoor.id) + norm([doors(i).x, doors(i).y] - [referenceDoor.x, referenceDoor.y]);
-        %
-        %                         if (cost < self.costs(doors(i).id))
-        %                             self.costs(doors(i).id) = cost;
-        %                         end
-        %                     end
-        %                 end
-        %
-        %                 checkedRoomIds = [checkedRoomIds, room.id];
-        %
-        %
-        %                 for i = 1: numel(doors)
-        %                     rooms = doors(i).rooms;
-        %                     for j = 1: numel(rooms)
-        %                         if (~any(rooms(j).id == checkedRoomIds))
-        %                             % if this room has been checked before
-        %                             setCostsForRoom(self, rooms(j), doors(i), checkedRoomIds);
-        %                         end
-        %                     end
-        %                 end
-        %             end
-        %         end
-        
-        
         function initialiseCosts(self)
             
             % initialise cost to a arbitrary high value
-            self.costs = ones(1, size(self.doors, 2)) * 1000;
+            self.costs = ones(1, size(self.doors, 2)) * 100;
             
             checkedRoomIds = [];
             
@@ -452,42 +355,7 @@ classdef Vehicle < handle
             for i = 1:numel(rooms)
                 self.setCostsForRoom(rooms(i), exit, checkedRoomIds);
             end
-            
-            % finally update the doors in the room it is currently in after
-            % updating the costs of all the doors. If this room has fire,
-            % add 30 to all the doors except the door it is closest to
-            if (self.room.hasFire())
-                
-                closestDoor = self.getClosestDoor();
-                
-                for i = 1: numel(self.room.doors)
-                    angleToDoor = self.getAngleToDoor([self.room.doors(i).x;self.room.doors(i).y]);
-                    angleToFire = self.getAngleToDoor(self.room.firePositions);
-                    differenceInAngle = abs(angleToDoor-angleToFire);
-                    %                     distanceToDoor = self.getDistanceToDoor([self.room.doors(i).x;self.room.doors(i).y]);
-                    %                     distanceToFire = self.getDistanceToFire(self.room.firePositions);
-                    if and((self.room.doors(i) ~= closestDoor),(differenceInAngle<(30*pi/180)))
-                        % Update cost if door is not the closes door AND
-                        % the angle between door and fire is smaller than
-                        % 30 degrees eg: door is behind the fire.
-                        self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30;
-                    end
-                end
-                
-                
-                
-            end
-            
-            
-            % update the cost with the distance from all the doors to the
-            % current location
-            for i = 1: numel(self.room.doors)
-                self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + norm(self.position(1:2) - [self.room.doors(i).x; self.room.doors(i).y]);
-            end
-            
-            
         end
-        
         
         function setCostsForRoom(self, room, referenceDoor, checkedRoomIds)
             % referenceDoor is the door you came through
@@ -502,13 +370,6 @@ classdef Vehicle < handle
                         % lower
                         cost = self.costs(referenceDoor.id) + norm([doors(i).x, doors(i).y] - [referenceDoor.x, referenceDoor.y]);
                         
-                        % check if robot has seen fire in this room
-                        if (any(self.roomsWithFire == room.id))
-                            cost = cost + 30;
-                        end
-                        
-                        % take the lowest cost if there are multiple paths
-                        % to the same door
                         if (cost < self.costs(doors(i).id))
                             self.costs(doors(i).id) = cost;
                         end
@@ -530,15 +391,12 @@ classdef Vehicle < handle
             end
         end
         
-        
-        
         function target = getTarget(self, room)
             % Returns the door with the lowest cost in the room
             doors = room.doors;
             lowestCost = 1000; % arbitrary
             for i = 1: numel(doors)
-                %                 cost = self.costs(doors(i).id) + norm(self.position(1:2) - [doors(i).x; doors(i).y]);
-                cost = self.costs(doors(i).id);
+                cost = self.costs(doors(i).id) + norm(self.position(1:2) - [doors(i).x; doors(i).y]);
                 if ( cost < lowestCost)
                     lowestCost = cost;
                     target = doors(i);
@@ -677,18 +535,6 @@ classdef Vehicle < handle
                     nearbyWalls = [nearbyWalls; wallsInRoom(i,:)];
                 end
                 
-            end
-        end
-        
-        function closestDoor = getClosestDoor(self)
-            closestDoor = self.room.doors(1);
-            shortestDistance = 1000; % arbitrary
-            for i = 1: numel(self.room.doors)
-                distance = norm([self.room.doors(i).x; self.room.doors(i).y] - self.position(1:2));
-                if  (distance < shortestDistance)
-                    shortestDistance = distance;
-                    closestDoor = self.room.doors(i);
-                end
             end
         end
         
