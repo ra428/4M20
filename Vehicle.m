@@ -320,7 +320,7 @@ classdef Vehicle < handle
                         
                         
                         % update the costs of the all the doors on the map
-%                         self.updateCosts(lastDoor);
+                        %                         self.updateCosts(lastDoor);
                         self.initialiseCosts();
                         
                         % change the target
@@ -334,8 +334,8 @@ classdef Vehicle < handle
                         % rethink about the route
                         for i  = 1: numel(vehiclesInRoom)
                             vehiclesInRoom(i).roomsWithFire = allRoomsWithFire;
-%                             vehiclesInRoom(i).updateCosts(lastDoor);
-                            vehiclesInRoom(i).initialiseCosts();    
+                            %                             vehiclesInRoom(i).updateCosts(lastDoor);
+                            vehiclesInRoom(i).initialiseCosts();
                             vehiclesInRoom(i).target = vehiclesInRoom(i).getTarget(self.room);
                             vehiclesInRoom(i).faceDoor([vehiclesInRoom(i).target.x, vehiclesInRoom(i).target.y]);
                         end
@@ -462,40 +462,21 @@ classdef Vehicle < handle
                 
                 for i = 1: numel(self.room.doors)
                     if (self.room.doors(i) ~= closestDoor)
-                       self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30; 
+                        self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30;
                     end
                 end
             end
+            
+            
+            % update the cost with the distance from all the doors to the
+            % current location
+            for i = 1: numel(self.room.doors)
+                self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + norm(self.position(1:2) - [self.room.doors(i).x; self.room.doors(i).y]);
+            end
+            
             
         end
         
-        function updateCosts(self, lastDoor)
-            
-            % initialise cost to a arbitrary high value
-            self.costs = ones(1, size(self.doors, 2)) * 1000;
-            
-            checkedRoomIds = [];
-            
-            exit = self.doors(end);
-            self.costs(exit.id) = 1;
-            
-            rooms = exit.rooms;
-            
-            for i = 1:numel(rooms)
-                self.setCostsForRoom(rooms(i), exit, checkedRoomIds);
-            end
-            
-            % finally update the doors in the room it is currently in after
-            % updating the costs of all the doors
-            if (self.room.hasFire())
-                for i = 1: numel(self.room.doors)
-                    if (self.room.doors(i) ~= lastDoor)
-                       self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30; 
-                    end
-                end
-            end
-            
-        end
         
         function setCostsForRoom(self, room, referenceDoor, checkedRoomIds)
             % referenceDoor is the door you came through
@@ -545,7 +526,8 @@ classdef Vehicle < handle
             doors = room.doors;
             lowestCost = 1000; % arbitrary
             for i = 1: numel(doors)
-                cost = self.costs(doors(i).id) + norm(self.position(1:2) - [doors(i).x; doors(i).y]);
+                %                 cost = self.costs(doors(i).id) + norm(self.position(1:2) - [doors(i).x; doors(i).y]);
+                cost = self.costs(doors(i).id);
                 if ( cost < lowestCost)
                     lowestCost = cost;
                     target = doors(i);
@@ -694,7 +676,7 @@ classdef Vehicle < handle
                 distance = norm([self.room.doors(i).x; self.room.doors(i).y] - self.position(1:2));
                 if  (distance < shortestDistance)
                     shortestDistance = distance;
-                    closestDoor = self.room.doors(i);       
+                    closestDoor = self.room.doors(i);
                 end
             end
         end
