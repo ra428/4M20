@@ -116,7 +116,7 @@ classdef Vehicle < handle
             
             if ((~self.hasExited) && (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.3))
                 % only proceed calculation if it has not reached the exit
-                if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.3))
+                if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.2))
                     % Only proceed if vehicle is not at target door
                     
                     %                     vehiclesInRoom = self.getVehiclesInRoom(vehicles);
@@ -138,8 +138,8 @@ classdef Vehicle < handle
                     
                     distanceToDoor = self.getDistanceToDoor([self.target.x; self.target.y]);
                     
-                    omegaLeftWheel = 10 * distanceToDoor(1) + 5 * distanceToFire(2);
-                    omegaRightWheel = 10 * distanceToDoor(2) + 5 * distanceToFire(1);
+                    omegaLeftWheel = 10 * distanceToDoor(1) + 7 * distanceToFire(2);
+                    omegaRightWheel = 10 * distanceToDoor(2) + 7 * distanceToFire(1);
                     
                     % add parameters to omegaLeftWheel and omegaRightWheel
                     % from nearby vehicles
@@ -151,20 +151,24 @@ classdef Vehicle < handle
                     
                     for i = 1: numel(vehiclesInFront)
                         distanceToVehicle = self.getDistanceToVehicle(vehiclesInFront(i));
-                        omegaLeftWheel = omegaLeftWheel + 10 * distanceToVehicle(2);
-                        omegaRightWheel = omegaRightWheel + 10 * distanceToVehicle(1);
+                        omegaLeftWheel = omegaLeftWheel + 5 * distanceToVehicle(2);
+                        omegaRightWheel = omegaRightWheel + 5 * distanceToVehicle(1);
                     end
                     
                     % add parameters to omegaLeftWheel and omegaRightWheel
-                    % from nearby walls
+                    % from nearby walls, also face the target if next to
+                    % the wall
                     
                     nearbyWalls = self.getNearbyWalls();
+                    if (size(nearbyWalls, 1) ~= 0)
+                       self.faceDoor([self.target.x, self.target.y]);
+                    end
                     
                     for i = 1: size(nearbyWalls,1)
                         distanceLeftSensor = self.getDistanceBetweenPointAndLine(self.positionLeftSensor, nearbyWalls(i, :));
                         distanceRightSensor = self.getDistanceBetweenPointAndLine(self.positionRightSensor, nearbyWalls(i, :));
-                        omegaLeftWheel = omegaLeftWheel + 30 * distanceRightSensor;
-                        omegaRightWheel = omegaRightWheel + 30 * distanceLeftSensor;
+                        omegaLeftWheel = omegaLeftWheel + 5 * distanceRightSensor;
+                        omegaRightWheel = omegaRightWheel + 5 * distanceLeftSensor;
                     end
 
                     
