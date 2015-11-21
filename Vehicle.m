@@ -1,5 +1,8 @@
 classdef Vehicle < handle
     properties
+        
+        id;
+        
         shaftLength = 0.1; % 0.1
         wheelRadius = 0.02; % 0.02
         distanceBetweenSensors = 0.1; % 0.1
@@ -27,10 +30,14 @@ classdef Vehicle < handle
         
         target;
         roomsWithFire;
+        
+        hasExited = false;
     end
     
     methods
-        function obj = Vehicle(position, rooms, doors)
+        function obj = Vehicle(id, position, rooms, doors)
+            
+            obj.id = id;
             
             obj.position = position;
             obj.positionHistory = (position);
@@ -87,7 +94,8 @@ classdef Vehicle < handle
             % sensor]
             distance = [norm(self.positionLeftSensor - positionDoor), norm(self.positionRightSensor - positionDoor)];
         end
-
+        
+        
         function faceDoor(self, positionDoor)
             angle = self.getAngleToDoor(positionDoor);
             if (angle > 0)
@@ -103,12 +111,24 @@ classdef Vehicle < handle
             end
         end
         
-        function nextStep(self)
+        function nextStep(self, vehicles)
+            % vehicles is all the vehicles on the map
             
-            if (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.2)
+            if ((~self.hasExited) && (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.3))
                 % only proceed calculation if it has not reached the exit
-                if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.2))
+                if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.3))
                     % Only proceed if vehicle is not at target door
+                    
+                    %                     vehiclesInRoom = self.getVehiclesInRoom(vehicles);
+                    %                     vehiclesInFront = [];
+                    %                     for i = 1: numel(vehiclesInRoom)
+                    %                         if (self.isVehicleInFront(vehiclesInRoom(i)))
+                    %
+                    %
+                    %                         end
+                    %
+                    %                     end
+                    
                     
                     if (self.room.hasFire())
                         distanceToFire = self.getDistanceToFire(self.room.firePositions);
@@ -121,6 +141,24 @@ classdef Vehicle < handle
                     omegaLeftWheel = 10 * distanceToDoor(1) + 5 * distanceToFire(2);
                     omegaRightWheel = 10 * distanceToDoor(2) + 5 * distanceToFire(1);
                     
+                    if (self == vehicles(1))
+                        xxx = 5;
+                    end
+                    % add parameters to omegaLeftWheel and omegaRightWheel
+                    vehiclesInFront = self.getVehiclesInFront(vehicles);
+                    if (numel(vehiclesInFront) > 0)
+                        omegaLeftWheel = omegaLeftWheel * size(vehiclesInFront, 2);
+                        omegaRightWheel = omegaRightWheel * size(vehiclesInFront, 2);
+                    end
+                    
+                    for i = 1: numel(vehiclesInFront)
+                        distanceToVehicle = self.getDistanceToVehicle(vehiclesInFront(i));
+                        omegaLeftWheel = omegaLeftWheel + 10 * distanceToVehicle(2);
+                        omegaRightWheel = omegaRightWheel + 10 * distanceToVehicle(1);
+                    end
+                    
+                    
+                    % normalise the speed
                     if (omegaLeftWheel > omegaRightWheel)
                         
                         omegaRightWheel = omegaRightWheel / (2.5 * omegaLeftWheel);
@@ -150,7 +188,7 @@ classdef Vehicle < handle
                     else
                         self.room = potentialRooms(1);
                     end
-                    %%                    
+                    %%
                     % update the cost of the door just went through
                     % (reluctant to go back / change in cost of other
                     % exits)
@@ -163,7 +201,7 @@ classdef Vehicle < handle
                             % door with the lowest cost
                             if (lastDoor.id ~= doors(i).id)
                                 % For each door in the room that is not the last door the vehicle went through
-%                                 cost = self.costs(lastDoor.id) + self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
+                                %                                 cost = self.costs(lastDoor.id) + self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
                                 cost = self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
                                 if (cost < lowestCost)
                                     lowestCost = cost;
@@ -199,17 +237,35 @@ classdef Vehicle < handle
                     % face the door
                     self.faceDoor([self.target.x, self.target.y]);
                 end
+            else
+                % it has reached the exit
+                self.hasExited = true;
+                % move it to a far away place so it does not repel other
+                % vehicles trying to go to the exit
+                self.position = [1000; 1000; 0];
+                
+            end
+        end
+        
+        function vehiclesInRoom = getVehiclesInRoom(self, vehicles)
+            % argument vehicles is all vehicles on the map apart from
+            % itself
+            vehiclesInRoom = [];
+            for i = 1: numel(vehicles)
+                if (vehicles(i) ~= self)
+                    if (vehicles(i).room == self.room)
+                        vehiclesInRoom = [vehiclesInRoom, vehicles(i)];
+                    end
+                end
             end
         end
         
         
-        
-        
         function angle = getAngleToDoor(self, positionDoor)
-
+            
             u = [positionDoor(1) - self.position(1), positionDoor(2) - self.position(2)];
             v = [(self.positionLeftSensor(1) + self.positionRightSensor(1)) / 2 - self.position(1), (self.positionLeftSensor(2) + self.positionRightSensor(2)) / 2- self.position(2)];
-
+            
             cosTheta = dot(u,v)/(norm(u)*norm(v));
             angle = -acos(cosTheta);
             
@@ -223,7 +279,7 @@ classdef Vehicle < handle
                 end
             end
         end
-       
+        
         
         function initialiseCosts(self)
             
@@ -244,7 +300,7 @@ classdef Vehicle < handle
         
         function setCostsForRoom(self, room, referenceDoor, checkedRoomIds)
             % referenceDoor is the door you came through
-            % 
+            %
             if (room.id ~= self.room.id)
                 % it is not the room we are in
                 doors = room.doors;
@@ -263,7 +319,7 @@ classdef Vehicle < handle
                 
                 checkedRoomIds = [checkedRoomIds, room.id];
                 
-             
+                
                 for i = 1: numel(doors)
                     rooms = doors(i).rooms;
                     for j = 1: numel(rooms)
@@ -314,6 +370,52 @@ classdef Vehicle < handle
             set(self.rightSensorHandle,'xdata',p_s2(1),'ydata',p_s2(2))
             
             drawnow;
+        end
+        
+        function distance = getDistanceToVehicle(self, vehicle)
+            
+            % distances = [distance to left sensor, distance to right
+            % sensor]
+            distance = [norm(self.positionLeftSensor - vehicle.position(1:2)), norm(self.positionRightSensor - vehicle.position(1:2))];
+        end
+        
+        function angle = getAngleToVehicle(self, vehicle)
+            
+            u = vehicle.position(1:2) - self.position(1:2);
+            v = [(self.positionLeftSensor(1) + self.positionRightSensor(1)) / 2 - self.position(1), (self.positionLeftSensor(2) + self.positionRightSensor(2)) / 2- self.position(2)];
+            
+            cosTheta = dot(u,v)/(norm(u)*norm(v));
+            angle = -acos(cosTheta);
+            
+        end
+        
+        function vehicleInFront = isVehicleInFront(self, vehicle)
+            angle = self.getAngleToVehicle(vehicle);
+            if (abs(angle) < 80 /180 * pi)
+                vehicleInFront = true;
+            else
+                vehicleInFront = false;
+            end
+        end
+        
+        function vehiclesInFront = getVehiclesInFront(self, vehicles)
+            % auxiliary function for avoiding other vehicles, argument
+            % vehicles is all vehicles
+            
+            vehiclesInRoom = self.getVehiclesInRoom(vehicles);
+            
+            vehiclesInFront = [];
+            for i = 1:numel(vehiclesInRoom)
+                if (self.isVehicleInFront(vehiclesInRoom(i)))
+                    distance = self.getDistanceToVehicle(vehiclesInRoom(i));
+                    
+                    if (distance(1) < (self.shaftLength * 20))
+                        % use distance(1) because we only need the distance
+                        % from one sensor
+                        vehiclesInFront = [vehiclesInFront, vehiclesInRoom(i)];
+                    end
+                end
+            end
         end
         
     end

@@ -3,7 +3,7 @@ clear all;
 figure(1);
 hold on;
 
-axis([1 15 1 10])
+axis([1 10 1 10])
 
 exitPosition = [10; 2];
 firePosition1 = [6; 3];
@@ -44,13 +44,14 @@ vehicles = [];
 %     
 %     vehicles = [vehicles, Vehicle([initialX; initialY; initialBearing], rooms, doors)];
 % end
-
-for i = 1:1
-    initialX = 9;
-    initialY = 2;
+id = 1;
+for i = 1:5
+    initialX = 8 + 2 * rand(1,1);
+    initialY = 2 + 2 * rand(1,1);
     initialBearing = rand(1, 1) * 2 * pi;
     
-    vehicles = [vehicles, Vehicle([initialX; initialY; initialBearing], rooms, doors)];
+    vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+    id = id + 1;
 end
 
 drawRooms(rooms, doors);
@@ -58,7 +59,7 @@ drawRooms(rooms, doors);
 while (true)
     for i = 1:numel(vehicles)
         vehicles(i).draw();
-        vehicles(i).nextStep();
+        vehicles(i).nextStep(vehicles);
     end
     
     %     pause(0.001);
