@@ -141,10 +141,8 @@ classdef Vehicle < handle
                     omegaLeftWheel = 10 * distanceToDoor(1) + 5 * distanceToFire(2);
                     omegaRightWheel = 10 * distanceToDoor(2) + 5 * distanceToFire(1);
                     
-                    if (self == vehicles(1))
-                        xxx = 5;
-                    end
                     % add parameters to omegaLeftWheel and omegaRightWheel
+                    % from nearby vehicles
                     vehiclesInFront = self.getVehiclesInFront(vehicles);
                     if (numel(vehiclesInFront) > 0)
                         omegaLeftWheel = omegaLeftWheel * size(vehiclesInFront, 2);
@@ -157,6 +155,18 @@ classdef Vehicle < handle
                         omegaRightWheel = omegaRightWheel + 10 * distanceToVehicle(1);
                     end
                     
+                    % add parameters to omegaLeftWheel and omegaRightWheel
+                    % from nearby walls
+                    
+                    nearbyWalls = self.getNearbyWalls();
+                    
+                    for i = 1: size(nearbyWalls,1)
+                        distanceLeftSensor = self.getDistanceBetweenPointAndLine(self.positionLeftSensor, nearbyWalls(i, :));
+                        distanceRightSensor = self.getDistanceBetweenPointAndLine(self.positionRightSensor, nearbyWalls(i, :));
+                        omegaLeftWheel = omegaLeftWheel + 30 * distanceRightSensor;
+                        omegaRightWheel = omegaRightWheel + 30 * distanceLeftSensor;
+                    end
+
                     
                     % normalise the speed
                     if (omegaLeftWheel > omegaRightWheel)
@@ -230,9 +240,6 @@ classdef Vehicle < handle
                     % change the target
                     
                     self.target = self.getTarget(self.room);
-                    
-                    
-                    
                     
                     % face the door
                     self.faceDoor([self.target.x, self.target.y]);
@@ -379,6 +386,7 @@ classdef Vehicle < handle
             distance = [norm(self.positionLeftSensor - vehicle.position(1:2)), norm(self.positionRightSensor - vehicle.position(1:2))];
         end
         
+        
         function angle = getAngleToVehicle(self, vehicle)
             
             u = vehicle.position(1:2) - self.position(1:2);
@@ -409,12 +417,62 @@ classdef Vehicle < handle
                 if (self.isVehicleInFront(vehiclesInRoom(i)))
                     distance = self.getDistanceToVehicle(vehiclesInRoom(i));
                     
-                    if (distance(1) < (self.shaftLength * 20))
+                    if (distance(1) < (self.shaftLength * 5))
                         % use distance(1) because we only need the distance
                         % from one sensor
                         vehiclesInFront = [vehiclesInFront, vehiclesInRoom(i)];
                     end
                 end
+            end
+        end
+        
+        function distance = getDistanceBetweenPointAndLine(self, point, line)
+            % this function calculates the shortest euclidean distance between a
+            % point and a line
+            pointX = point(1);
+            pointY = point(2);
+            
+            lineX1 = line(1);
+            lineY1 = line(2);
+            lineX2 = line(3);
+            lineY2 = line(4);
+            
+            if ((lineX2 - lineX1) == 0)
+                distance = abs(pointX - lineX1);
+            else
+                
+                gradient = (lineY2 - lineY1) / (lineX2 - lineX1);
+                
+                % in Ax + By + C = 0 form
+                A = - gradient;
+                B = 1;
+                C = gradient * lineX1 - lineY1;
+                
+                % use |Am + Bn + C|/sqrt(A^2+B^2) where point is (m,n)
+                numerator = abs(A * pointX + B * pointY + C);
+                denominator = sqrt(A ^ 2 + B ^ 2);
+                
+                distance = numerator / denominator;
+            end
+        end
+        
+        function nearbyWalls = getNearbyWalls(self)
+            % auxiliary function for avoiding walls
+            
+            nearbyWalls = [];
+            
+            wallsInRoom = self.room.getWalls();
+            
+            for i = 1:size(wallsInRoom, 1)
+                
+                distance = self.getDistanceBetweenPointAndLine(self.position(1:2), wallsInRoom(i,:));
+                
+                if (distance < (self.shaftLength * 1))
+                    % use distance(1) because we only need the distance
+                    % from one sensor
+                    nearbyWalls = [nearbyWalls; wallsInRoom(i,:)];
+                end
+                
             end
         end
         

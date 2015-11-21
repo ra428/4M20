@@ -38,6 +38,15 @@ classdef Room < handle
             end
         end
         
+        function walls = getWalls(self)
+           walls = [self.topLeft(1:2), self.topRight(1:2); 
+                    self.topLeft(1:2), self.bottomLeft(1:2);
+                    self.bottomLeft(1:2), self.bottomRight(1:2);
+                    self.bottomRight(1:2), self.topRight(1:2)];
+                    
+           
+        end
+        
         function draw(self)
             
             leftLineHandle = line(0,0,'color','k','LineWidth',2);   %left side of room
