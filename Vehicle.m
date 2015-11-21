@@ -22,7 +22,7 @@ classdef Vehicle < handle
         rightSensorHandle;   %sensor right
         
         positionHandle; % only use it to draw a blob instead of the full
-            %left/right/front/back and wheels of the vehicle
+        %left/right/front/back and wheels of the vehicle
         
         room; % the room which it is in
         
@@ -120,148 +120,149 @@ classdef Vehicle < handle
         
         function nextStep(self, vehicles)
             % vehicles is all the vehicles on the map
-            
-            if ((~self.hasExited) && (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.3))
-                % only proceed calculation if it has not reached the exit
-                if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.2))
-                    % Only proceed if vehicle is not at target door
-                    
-                    %                     vehiclesInRoom = self.getVehiclesInRoom(vehicles);
-                    %                     vehiclesInFront = [];
-                    %                     for i = 1: numel(vehiclesInRoom)
-                    %                         if (self.isVehicleInFront(vehiclesInRoom(i)))
-                    %
-                    %
-                    %                         end
-                    %
-                    %                     end
-                    
-                    
-                    if (self.room.hasFire())
-                        distanceToFire = self.getDistanceToFire(self.room.firePositions);
-                    else
-                        distanceToFire = [1000;1000];
-                    end
-                    
-                    distanceToDoor = self.getDistanceToDoor([self.target.x; self.target.y]);
-                    
-                    omegaLeftWheel = 10 * distanceToDoor(1) + 7 * distanceToFire(2);
-                    omegaRightWheel = 10 * distanceToDoor(2) + 7 * distanceToFire(1);
-                    
-                    % add parameters to omegaLeftWheel and omegaRightWheel
-                    % from nearby vehicles
-                    vehiclesInFront = self.getVehiclesInFront(vehicles);
-                    if (numel(vehiclesInFront) > 0)
-                        omegaLeftWheel = omegaLeftWheel * size(vehiclesInFront, 2);
-                        omegaRightWheel = omegaRightWheel * size(vehiclesInFront, 2);
-                    end
-                    
-                    for i = 1: numel(vehiclesInFront)
-                        distanceToVehicle = self.getDistanceToVehicle(vehiclesInFront(i));
-                        omegaLeftWheel = omegaLeftWheel + 5 * distanceToVehicle(2);
-                        omegaRightWheel = omegaRightWheel + 5 * distanceToVehicle(1);
-                    end
-                    
-                    % add parameters to omegaLeftWheel and omegaRightWheel
-                    % from nearby walls, also face the target if next to
-                    % the wall
-                    
-                    nearbyWalls = self.getNearbyWalls();
-                    if (size(nearbyWalls, 1) ~= 0)
-                        self.faceDoor([self.target.x, self.target.y]);
-                    end
-                    
-                    for i = 1: size(nearbyWalls,1)
-                        distanceLeftSensor = self.getDistanceBetweenPointAndLine(self.positionLeftSensor, nearbyWalls(i, :));
-                        distanceRightSensor = self.getDistanceBetweenPointAndLine(self.positionRightSensor, nearbyWalls(i, :));
-                        omegaLeftWheel = omegaLeftWheel + 5 * distanceRightSensor;
-                        omegaRightWheel = omegaRightWheel + 5 * distanceLeftSensor;
-                    end
-                    
-                    
-                    % normalise the speed
-                    if (omegaLeftWheel > omegaRightWheel)
+            if (~self.hasExited)
+                if (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.3)
+                    % only proceed calculation if it has not reached the exit
+                    if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.2))
+                        % Only proceed if vehicle is not at target door
                         
-                        omegaRightWheel = omegaRightWheel / (2.5 * omegaLeftWheel);
-                        omegaLeftWheel = 0.5;
+                        %                     vehiclesInRoom = self.getVehiclesInRoom(vehicles);
+                        %                     vehiclesInFront = [];
+                        %                     for i = 1: numel(vehiclesInRoom)
+                        %                         if (self.isVehicleInFront(vehiclesInRoom(i)))
+                        %
+                        %
+                        %                         end
+                        %
+                        %                     end
+                        
+                        
+                        if (self.room.hasFire())
+                            distanceToFire = self.getDistanceToFire(self.room.firePositions);
+                        else
+                            distanceToFire = [1000;1000];
+                        end
+                        
+                        distanceToDoor = self.getDistanceToDoor([self.target.x; self.target.y]);
+                        
+                        omegaLeftWheel = 10 * distanceToDoor(1) + 7 * distanceToFire(2);
+                        omegaRightWheel = 10 * distanceToDoor(2) + 7 * distanceToFire(1);
+                        
+                        % add parameters to omegaLeftWheel and omegaRightWheel
+                        % from nearby vehicles
+                        vehiclesInFront = self.getVehiclesInFront(vehicles);
+                        if (numel(vehiclesInFront) > 0)
+                            omegaLeftWheel = omegaLeftWheel * size(vehiclesInFront, 2);
+                            omegaRightWheel = omegaRightWheel * size(vehiclesInFront, 2);
+                        end
+                        
+                        for i = 1: numel(vehiclesInFront)
+                            distanceToVehicle = self.getDistanceToVehicle(vehiclesInFront(i));
+                            omegaLeftWheel = omegaLeftWheel + 5 * distanceToVehicle(2);
+                            omegaRightWheel = omegaRightWheel + 5 * distanceToVehicle(1);
+                        end
+                        
+                        % add parameters to omegaLeftWheel and omegaRightWheel
+                        % from nearby walls, also face the target if next to
+                        % the wall
+                        
+                        nearbyWalls = self.getNearbyWalls();
+                        if (size(nearbyWalls, 1) ~= 0)
+                            self.faceDoor([self.target.x, self.target.y]);
+                        end
+                        
+                        for i = 1: size(nearbyWalls,1)
+                            distanceLeftSensor = self.getDistanceBetweenPointAndLine(self.positionLeftSensor, nearbyWalls(i, :));
+                            distanceRightSensor = self.getDistanceBetweenPointAndLine(self.positionRightSensor, nearbyWalls(i, :));
+                            omegaLeftWheel = omegaLeftWheel + 5 * distanceRightSensor;
+                            omegaRightWheel = omegaRightWheel + 5 * distanceLeftSensor;
+                        end
+                        
+                        
+                        % normalise the speed
+                        if (omegaLeftWheel > omegaRightWheel)
+                            
+                            omegaRightWheel = omegaRightWheel / (2.5 * omegaLeftWheel);
+                            omegaLeftWheel = 0.5;
+                        else
+                            omegaLeftWheel = omegaLeftWheel / (2.5 * omegaRightWheel);
+                            omegaRightWheel = 0.5;
+                        end
+                        
+                        self.updatePosition(omegaLeftWheel, omegaRightWheel);
                     else
-                        omegaLeftWheel = omegaLeftWheel / (2.5 * omegaRightWheel);
-                        omegaRightWheel = 0.5;
-                    end
-                    
-                    self.updatePosition(omegaLeftWheel, omegaRightWheel);
-                else
-                    % we have reached the target, change to the next target
-                    % update the cost
-                    
-                    % update the room it is in (this logic is needed coz it
-                    % has not really moved to the next room yet
-                    
-                    lastDoor = self.target;
-                    lastRoom = self.room; % self.room and target will be updated soon, just save a copy
-                    
-                    %% auxilliary function to find the next room
-                    potentialRooms = self.target.rooms;
-                    
-                    % This updates our current room to the next one
-                    if (potentialRooms(1) == self.room)
-                        self.room = potentialRooms(2);
-                    else
-                        self.room = potentialRooms(1);
-                    end
-                    %%
-                    % update the cost of the door just went through
-                    % (reluctant to go back / change in cost of other
-                    % exits)
-                    doors = lastRoom.doors;
-                    lowestCost = 1000; % arbitrary, if the room has only one door, the cost is really high (no exit)
-                    if (numel(doors) ~= 1)
-                        for i = 1: numel(doors)
-                            % Loop through all the doors in the previous
-                            % room and update the cost of lastDoor by using only the
-                            % door with the lowest cost
-                            if (lastDoor.id ~= doors(i).id)
-                                % For each door in the room that is not the last door the vehicle went through
-                                %                                 cost = self.costs(lastDoor.id) + self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
-                                cost = self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
-                                if (cost < lowestCost)
-                                    lowestCost = cost;
+                        % we have reached the target, change to the next target
+                        % update the cost
+                        
+                        % update the room it is in (this logic is needed coz it
+                        % has not really moved to the next room yet
+                        
+                        lastDoor = self.target;
+                        lastRoom = self.room; % self.room and target will be updated soon, just save a copy
+                        
+                        %% auxilliary function to find the next room
+                        potentialRooms = self.target.rooms;
+                        
+                        % This updates our current room to the next one
+                        if (potentialRooms(1) == self.room)
+                            self.room = potentialRooms(2);
+                        else
+                            self.room = potentialRooms(1);
+                        end
+                        %%
+                        % update the cost of the door just went through
+                        % (reluctant to go back / change in cost of other
+                        % exits)
+                        doors = lastRoom.doors;
+                        lowestCost = 1000; % arbitrary, if the room has only one door, the cost is really high (no exit)
+                        if (numel(doors) ~= 1)
+                            for i = 1: numel(doors)
+                                % Loop through all the doors in the previous
+                                % room and update the cost of lastDoor by using only the
+                                % door with the lowest cost
+                                if (lastDoor.id ~= doors(i).id)
+                                    % For each door in the room that is not the last door the vehicle went through
+                                    %                                 cost = self.costs(lastDoor.id) + self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
+                                    cost = self.costs(doors(i).id) + norm([doors(i).x, doors(i).y] - [lastDoor.x, lastDoor.y]);
+                                    if (cost < lowestCost)
+                                        lowestCost = cost;
+                                    end
                                 end
                             end
                         end
-                    end
-                    
-                    self.costs(lastDoor.id) = lowestCost;
-                    
-                    % immediately check the room after going into a new one
-                    % If room has a fire, add 30 to every door in the room
-                    % apart from the the last door
-                    doors = self.room.doors;
-                    if (self.room.hasFire() && ~any(self.room.id == self.roomsWithFire))
-                        for i = 1: numel(doors)
-                            if (lastDoor.id ~= doors(i).id)
-                                self.costs(doors(i).id) = self.costs(doors(i).id) + 30;
-                                self.roomsWithFire = [self.roomsWithFire, self.room.id];
+                        
+                        self.costs(lastDoor.id) = lowestCost;
+                        
+                        % immediately check the room after going into a new one
+                        % If room has a fire, add 30 to every door in the room
+                        % apart from the the last door
+                        doors = self.room.doors;
+                        if (self.room.hasFire() && ~any(self.room.id == self.roomsWithFire))
+                            for i = 1: numel(doors)
+                                if (lastDoor.id ~= doors(i).id)
+                                    self.costs(doors(i).id) = self.costs(doors(i).id) + 30;
+                                    self.roomsWithFire = [self.roomsWithFire, self.room.id];
+                                end
                             end
                         end
+                        
+                        
+                        
+                        % change the target
+                        
+                        self.target = self.getTarget(self.room);
+                        
+                        % face the door
+                        self.faceDoor([self.target.x, self.target.y]);
                     end
+                else
+                    % it has reached the exit
+                    self.hasExited = true;
+                    % move it to a far away place so it does not repel other
+                    % vehicles trying to go to the exit
+                    self.updatePosition(1000, 1000);
                     
-                    
-                    
-                    % change the target
-                    
-                    self.target = self.getTarget(self.room);
-                    
-                    % face the door
-                    self.faceDoor([self.target.x, self.target.y]);
                 end
-            else
-                % it has reached the exit
-                self.hasExited = true;
-                % move it to a far away place so it does not repel other
-                % vehicles trying to go to the exit
-                self.position = [1000; 1000; 0];
-                
             end
         end
         
@@ -376,7 +377,7 @@ classdef Vehicle < handle
             p_s2 = self.position(1:2) + self.shaftLength/2*[cos(self.position(3));sin(self.position(3))] + self.distanceBetweenSensors/2*[sin(self.position(3));-cos(self.position(3))];
             
             
-            plot(self.positionHistory(1, :), self.positionHistory(2, :));
+%             plot(self.positionHistory(1, :), self.positionHistory(2, :));
             
             set(self.leftLineHandle,'xdata',[r_c1(1) r_c2(1)],'ydata',[r_c1(2) r_c2(2)])
             set(self.frontLineHandle,'xdata',[r_c2(1) r_c3(1)],'ydata',[r_c2(2) r_c3(2)])
@@ -387,10 +388,10 @@ classdef Vehicle < handle
             set(self.leftSensorHandle,'xdata',p_s1(1),'ydata',p_s1(2))
             set(self.rightSensorHandle,'xdata',p_s2(1),'ydata',p_s2(2))
             
-            drawnow;
         end
         
         function simpleDraw(self)
+            % draw only the schematic shape of the vehicles
             
             plot(self.positionHistory(1, :), self.positionHistory(2, :));
             
@@ -398,7 +399,6 @@ classdef Vehicle < handle
             set(self.leftSensorHandle,'xdata',self.positionLeftSensor(1),'ydata',self.positionLeftSensor(2));
             set(self.rightSensorHandle,'xdata',self.positionRightSensor(1),'ydata',self.positionRightSensor(2));
             
-            drawnow;
         end
         
         function distance = getDistanceToVehicle(self, vehicle)

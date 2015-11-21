@@ -3,7 +3,7 @@ classdef FireSimulation < handle
         function run(self)
             
             close all;
-            clear all;
+            
             figure(1);
             hold on;
             
@@ -39,35 +39,51 @@ classdef FireSimulation < handle
             
             vehicles = [];
             
-            % for i = 1:10
-            %     initialX = rand(1, 1) * 9 + 1;
-            %     initialY = rand(1, 1) * 9 + 1;
-            %     initialBearing = rand(1, 1) * 2 * pi;
-            %
-            %     vehicles = [vehicles, Vehicle([initialX; initialY; initialBearing], rooms, doors)];
-            % end
             id = 1;
-            for i = 1:5
-                initialX = 8 + 2 * rand(1,1);
-                initialY = 2 + 2 * rand(1,1);
+            for i = 1:50
+                initialX = rand(1, 1) * 9 + 1;
+                initialY = rand(1, 1) * 9 + 1;
                 initialBearing = rand(1, 1) * 2 * pi;
-                
+            
                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
                 id = id + 1;
             end
             
+%             id = 1;
+%             for i = 1:5
+%                 initialX = 8 + 2 * rand(1,1);
+%                 initialY = 2 + 2 * rand(1,1);
+%                 initialBearing = rand(1, 1) * 2 * pi;
+%                 
+%                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+%                 id = id + 1;
+%             end
+            
             drawRooms(rooms, doors);
             
-            while (true)
+            while (~self.allVehiclesExited(vehicles))
                 for i = 1:numel(vehicles)
-                    %                     vehicles(i).draw();
-                    vehicles(i).simpleDraw();
+                    
+                    
                     vehicles(i).nextStep(vehicles);
+%                     vehicles(i).simpleDraw();
+                                        vehicles(i).draw();
                 end
                 
+                drawnow;
                 %     pause(0.001);
                 
             end
+        end
+        
+        function allVehiclesExited = allVehiclesExited(self, vehicles)
+            allVehiclesExited = false;
+            for i = 1: numel(vehicles)
+                if (~vehicles(i).hasExited)
+                    return;
+                end
+            end
+            allVehiclesExited = true;
         end
     end
     
