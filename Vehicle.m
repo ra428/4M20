@@ -461,21 +461,19 @@ classdef Vehicle < handle
                 closestDoor = self.getClosestDoor();
                 
                 for i = 1: numel(self.room.doors)
-                    angleToDoor = self.getAngleToDoor([self.room.doors(i).x;self.room.doors(i).y]);
-                    angleToFire = self.getAngleToDoor(self.room.firePositions);
-                    differenceInAngle = abs(angleToDoor-angleToFire);
-                    %                     distanceToDoor = self.getDistanceToDoor([self.room.doors(i).x;self.room.doors(i).y]);
-                    %                     distanceToFire = self.getDistanceToFire(self.room.firePositions);
-                    if and((self.room.doors(i) ~= closestDoor),(differenceInAngle<(30*pi/180)))
-                        % Update cost if door is not the closes door AND
-                        % the angle between door and fire is smaller than
-                        % 30 degrees eg: door is behind the fire.
-                        self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30;
+                    if (self.room.doors(i) ~= closestDoor)
+                        angleToDoor = self.getAngleToDoor([self.room.doors(i).x;self.room.doors(i).y]);
+                        angleToFire = self.getAngleToDoor(self.room.firePositions);
+                        differenceInAngle = abs(angleToDoor-angleToFire);
+
+                        if (differenceInAngle<(30*pi/180))
+                            % Update cost if door is not the closes door AND
+                            % the angle between door and fire is smaller than
+                            % 30 degrees eg: door is behind the fire.
+                            self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30;
+                        end
                     end
                 end
-                
-                
-                
             end
             
             
