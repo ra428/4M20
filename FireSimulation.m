@@ -43,26 +43,27 @@ classdef FireSimulation < handle
             
             vehicles = [];
             
+            %             id = 1;
+            %             for i = 1:1
+            %                 initialX = rand(1, 1) * 9 + 1;
+            %                 initialY = rand(1, 1) * 9 + 1;
+            %                 initialBearing = rand(1, 1) * 2 * pi;
+            %
+            % %                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+            %                 vehicles = [vehicles, VehicleWithoutInfo(id, [initialX; initialY; initialBearing], rooms, doors)];
+            %                 id = id + 1;
+            %             end
+            
             id = 1;
-            for i = 1:50
-                initialX = rand(1, 1) * 9 + 1;
-                initialY = rand(1, 1) * 9 + 1;
+            for i = 1:10
+                initialX = 9 + 0.5 * rand(1,1);
+                initialY = 2.5 + 0.5 * rand(1,1);
                 initialBearing = rand(1, 1) * 2 * pi;
                 
-                vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+                %                             vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+                vehicles = [vehicles, VehicleWithoutInfo(id, [initialX; initialY; initialBearing], rooms, doors)];
                 id = id + 1;
             end
-            
-%                         id = 1;
-%                         for i = 1:10
-%                             initialX = 9 + 0.5 * rand(1,1);
-%                             initialY = 1.5 + 0.5 * rand(1,1);
-%                             %                 initialBearing = rand(1, 1) * 2 * pi;
-%                             initialBearing = 0;
-%             
-%                             vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
-%                             id = id + 1;
-%                         end
             %
             %             id = 1;
             %             for i = 1:5
@@ -76,28 +77,35 @@ classdef FireSimulation < handle
             
             drawRooms(rooms, doors);
             
-            while (~self.allVehiclesExited(vehicles))
+            numOfSteps = 0;
+            while (~self.allVehiclesDone(vehicles))
                 for i = 1:numel(vehicles)
-                    
-                    
-                    vehicles(i).nextStep(vehicles);
-                    vehicles(i).draw();
+                    if (vehicles(i).alive)
+                        
+                        vehicles(i).nextStep(vehicles);
+                        vehicles(i).draw();
+                    end
                 end
                 
                 drawnow;
                 pause(0.03);
+                numOfSteps = numOfSteps + 1;
                 
             end
+            numOfSteps
         end
         
-        function allVehiclesExited = allVehiclesExited(self, vehicles)
-            allVehiclesExited = false;
+        function allVehiclesDone = allVehiclesDone(self, vehicles)
+            % returns true if all vehicles are dead or have exited
+            allVehiclesDone = false;
             for i = 1: numel(vehicles)
                 if (~vehicles(i).hasExited)
-                    return;
+                    if (vehicles(i).alive)
+                        return;
+                    end
                 end
             end
-            allVehiclesExited = true;
+            allVehiclesDone = true;
         end
     end
     
