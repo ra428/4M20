@@ -14,7 +14,7 @@ classdef FireSimulation < handle
             firePosition1 = [7.5; 1.5];
             firePosition2 = [9; 7];
             firePosition3 = [2.5; 7.5];
-            firePosition4 = [7; 2];
+            firePosition4 = [9; 2.5];
             
             
             door1 = Door(1, 1.5, 5);
