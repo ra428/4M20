@@ -16,7 +16,7 @@ classdef Vehicle < handle
         alive;
         
         speed;
-        riskTakingFactor;
+        fearFactor;
         
         
         room; % the room which it is in
@@ -67,7 +67,7 @@ classdef Vehicle < handle
             
             % set the speed and risk taking factor randomly
             obj.speed = 0.5 + 1*rand(1,1);
-            obj.riskTakingFactor =  1+0.25*randn(1,1);
+            obj.fearFactor =  1+0.25*randn(1,1);
             
             obj.rooms = rooms;
             obj.room = obj.getRoom(rooms);
@@ -372,7 +372,7 @@ classdef Vehicle < handle
                             % the angle between door and fire is smaller than
                             % 90 degrees eg: door is behind the fire.
                             %                             self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30;
-                            self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 10 * self.riskTakingFactor;
+                            self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 10 * self.fearFactor;
                         end
                     end
                 end
@@ -402,7 +402,7 @@ classdef Vehicle < handle
                         % check if robot has seen fire in this room
                         if (any(self.roomsWithFire == room.id))
 %                             cost = cost + 30;
-                            cost = cost + 10 * self.riskTakingFactor;
+                            cost = cost + 10 * self.fearFactor;
                         end
                         
                         % take the lowest cost if there are multiple paths
