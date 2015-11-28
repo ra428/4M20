@@ -54,16 +54,48 @@ classdef FireSimulation < handle
             %                 id = id + 1;
             %             end
             
+            %             id = 1;
+            %             for i = 1:10
+            %                 initialX = 9 + 0.5 * rand(1,1);
+            %                 initialY = 2.5 + 0.5 * rand(1,1);
+            %                 initialBearing = rand(1, 1) * 2 * pi;
+            %
+            %                 vehicles = [vehicles, VehicleWithoutInfo(id, [initialX; initialY; initialBearing], rooms, doors)];
+            %                 id = id + 1;
+            %             end
+            %
+            %
+            %             for i = 1:10
+            %                 initialX = 9 + 0.5 * rand(1,1);
+            %                 initialY = 2.5 + 0.5 * rand(1,1);
+            %                 initialBearing = rand(1, 1) * 2 * pi;
+            %
+            %                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+            %                 id = id + 1;
+            %             end
+            
             id = 1;
             for i = 1:10
-                initialX = 9 + 0.5 * rand(1,1);
-                initialY = 2.5 + 0.5 * rand(1,1);
+                initialX = rand(1, 1) * 9 + 1;
+                initialY = rand(1, 1) * 9 + 1;
                 initialBearing = rand(1, 1) * 2 * pi;
-                
-                %                             vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+               
                 vehicles = [vehicles, VehicleWithoutInfo(id, [initialX; initialY; initialBearing], rooms, doors)];
                 id = id + 1;
             end
+            
+                            
+            for i = 1:20
+                initialX = rand(1, 1) * 9 + 1;
+                initialY = rand(1, 1) * 9 + 1;
+                initialBearing = rand(1, 1) * 2 * pi;
+               
+                vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+                id = id + 1;
+            end  
+            
+            
+            
             %
             %             id = 1;
             %             for i = 1:5

@@ -100,8 +100,8 @@ classdef VehicleWithoutInfo < handle
             obj.backLineHandle = line(0,0,'color','k','LineWidth',2);   %back of vehicle
             obj.leftWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel left
             obj.rightWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel right
-            obj.leftSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor left
-            obj.rightSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor right
+            obj.leftSensorHandle = line(0,0,'color','g','Marker','.','MarkerSize',20);   %sensor left
+            obj.rightSensorHandle = line(0,0,'color','g','Marker','.','MarkerSize',20);   %sensor right
             
             obj.positionHandle = line(0,0,'color','k','Marker','.','MarkerSize',20);
             %position. only use it to draw a blob instead of the full
@@ -156,6 +156,9 @@ classdef VehicleWithoutInfo < handle
             if (~self.hasExited)
                 if (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.3)
                     % only proceed calculation if it has not reached the exit
+                   
+                    
+                    
                     if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.2))
                         % Only proceed if vehicle is not at target door
                         
@@ -176,11 +179,13 @@ classdef VehicleWithoutInfo < handle
                             distanceToFire = [1000;1000];
                         end
                         
+                        % Change speed to travel to door 
                         distanceToDoor = self.getDistanceToDoor([self.target.x; self.target.y]);
                         
                         omegaLeftWheel = 10 * distanceToDoor(1) + 7 * distanceToFire(2);
                         omegaRightWheel = 10 * distanceToDoor(2) + 7 * distanceToFire(1);
                         
+                        % Change speed for separation
                         % add parameters to omegaLeftWheel and omegaRightWheel
                         % from nearby vehicles
                         vehiclesInFront = self.getVehiclesInFront(vehicles);
@@ -195,6 +200,7 @@ classdef VehicleWithoutInfo < handle
                             omegaRightWheel = omegaRightWheel + 5 * distanceToVehicle(1);
                         end
                         
+                        % Change direction when hitting wall
                         % add parameters to omegaLeftWheel and omegaRightWheel
                         % from nearby walls, also face the target if next to
                         % the wall
