@@ -24,6 +24,8 @@ classdef Vehicle < handle
         positionHandle; % only use it to draw a blob instead of the full
         %left/right/front/back and wheels of the vehicle
         
+        speed;
+        
         room; % the room which it is in
         
         rooms;
@@ -36,7 +38,9 @@ classdef Vehicle < handle
         
         hasExited = false;
         
-        lastDoor; % last door it came through
+        lastDoor = 0; % last door it came through, arbitrary 0 when it just initialised
+        
+        
         
         
     end
@@ -45,6 +49,7 @@ classdef Vehicle < handle
         function obj = Vehicle(id, position, rooms, doors)
             
             obj.id = id;
+            
             
             obj.position = position;
             obj.positionHistory = (position);
@@ -66,12 +71,12 @@ classdef Vehicle < handle
             %position. only use it to draw a blob instead of the full
             %left/right/front/back and wheels of the vehicle
             
+            obj.speed = 0.5 + 1*rand(1,1); % initialise the speed randomly
+            
             obj.rooms = rooms;
             obj.room = obj.getRoom(rooms);
             
             obj.doors = doors;
-            
-            obj.lastDoor = 0; % no lastDoor when it just initialised
             
             obj.initialiseCosts();
             
@@ -86,6 +91,8 @@ classdef Vehicle < handle
                 obj.roomsWithFire = [obj.roomsWithFire, obj.room.id];
             end
             
+            
+            
         end
         
         function updatePosition(self, omegaLeftWheel, omegaRightWheel)
@@ -93,7 +100,7 @@ classdef Vehicle < handle
             dphi = (omegaRightWheel*self.wheelRadius - omegaLeftWheel*self.wheelRadius)/2/(self.shaftLength/2); % Remove minus sign to switch polarity, now it goes away from fire
             % minus sign is changing going towards/away from lightsource
             
-            dt = 5; % how fast the animation is (the faster the animation, the less accurate the computation)
+            dt = 5 * self.speed; % how fast the animation is (the faster the animation, the less accurate the computation)
             
             self.position = self.position + [velocity*cos(self.position(3));velocity*sin(self.position(3));dphi]*dt;
             self.positionLeftSensor = self.position(1:2) + self.shaftLength/2*[cos(self.position(3));sin(self.position(3))] + self.distanceBetweenSensors/2*[-sin(self.position(3));cos(self.position(3))];
@@ -220,7 +227,7 @@ classdef Vehicle < handle
                             self.room = potentialRooms(2);
                         else
                             self.room = potentialRooms(1);
-                        end                        
+                        end
                         
                         % immediately check the room after going into a new one
                         % If room has a fire, update roomsWithFire
