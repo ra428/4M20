@@ -35,6 +35,10 @@ classdef Vehicle < handle
         roomsWithFire;
         
         hasExited = false;
+        
+        lastDoor; % last door it came through
+        
+        
     end
     
     methods
@@ -67,6 +71,8 @@ classdef Vehicle < handle
             
             obj.doors = doors;
             
+            obj.lastDoor = 0; % no lastDoor when it just initialised
+            
             obj.initialiseCosts();
             
             obj.target = obj.getTarget(obj.room);
@@ -74,6 +80,12 @@ classdef Vehicle < handle
             obj.faceDoor([obj.target.x, obj.target.y]);
             
             obj.roomsWithFire = [];
+            
+            % initialise room with fire for the current room
+            if (obj.room.hasFire())
+                obj.roomsWithFire = [obj.roomsWithFire, obj.room.id];
+            end
+                        
         end
         
         function updatePosition(self, omegaLeftWheel, omegaRightWheel)
@@ -197,7 +209,7 @@ classdef Vehicle < handle
                         % update the room it is in (this logic is needed coz it
                         % has not really moved to the next room yet
                         
-                        lastDoor = self.target;
+                        self.lastDoor = self.target;
                         lastRoom = self.room; % self.room and target will be updated soon, just save a copy
                         
                         %% auxilliary function to find the next room
@@ -456,17 +468,40 @@ classdef Vehicle < handle
             % finally update the doors in the room it is currently in after
             % updating the costs of all the doors. If this room has fire,
             % add 30 to all the doors except the door it is closest to
+%             if (self.room.hasFire())
+%                 
+%                 closestDoor = self.getClosestDoor();
+%                 
+%                 for i = 1: numel(self.room.doors)
+%                     if (self.room.doors(i) ~= closestDoor)
+%                         angleToDoor = self.getAngleToDoor([self.room.doors(i).x;self.room.doors(i).y]);
+%                         angleToFire = self.getAngleToDoor(self.room.firePositions);
+%                         differenceInAngle = abs(angleToDoor-angleToFire);
+%                         
+%                         if (differenceInAngle<(90*pi/180))
+%                             % Update cost if door is not the closes door AND
+%                             % the angle between door and fire is smaller than
+%                             % 30 degrees eg: door is behind the fire.
+%                             self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30;
+%                         end
+%                     end
+%                 end
+%             end
+
+            % finally update the doors in the room it is currently in after
+            % updating the costs of all the doors. If this room has fire,
+            % add 30 to all the doors except the door it is closest to
             if (self.room.hasFire())
                 
                 closestDoor = self.getClosestDoor();
                 
                 for i = 1: numel(self.room.doors)
-                    if (self.room.doors(i) ~= closestDoor)
+                    if (self.room.doors(i) ~= self.lastDoor)
                         angleToDoor = self.getAngleToDoor([self.room.doors(i).x;self.room.doors(i).y]);
                         angleToFire = self.getAngleToDoor(self.room.firePositions);
                         differenceInAngle = abs(angleToDoor-angleToFire);
-
-                        if (differenceInAngle<(30*pi/180))
+                        
+                        if (differenceInAngle<(90*pi/180))
                             % Update cost if door is not the closes door AND
                             % the angle between door and fire is smaller than
                             % 30 degrees eg: door is behind the fire.
@@ -475,7 +510,9 @@ classdef Vehicle < handle
                     end
                 end
             end
-            
+
+
+
             
             % update the cost with the distance from all the doors to the
             % current location

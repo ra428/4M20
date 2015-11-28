@@ -5,13 +5,13 @@ classdef FireSimulation < handle
             close all;
             
             figure(1);
-%             figure('units','normalized','outerposition',[0 0 1 1]);
+            %             figure('units','normalized','outerposition',[0 0 1 1]);
             figure('Position',[100,100,1000,1000])
             hold on;
             
             axis([1 10 1 10])
             
-            firePosition1 = [6; 3];
+            firePosition1 = [7.5; 1.5];
             firePosition2 = [9; 7];
             firePosition3 = [2.5; 7.5];
             firePosition4 = [7; 2];
@@ -34,7 +34,7 @@ classdef FireSimulation < handle
             room3 = Room(3, [8,5], [10,5], [8,1], [10,1], [door5, door6], []);
             room4 = Room(4, [8,10], [10,10], [8,5], [10,5], [door6, door7], firePosition2);
             room5 = Room(5, [4,10], [8,10], [4,5], [8,5], [door3, door7], []);
-            room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door1, door2, door3], []);
+            room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door1, door2, door3], firePosition3);
             
             
             rooms = [room1, room2, room3, room4, room5, room6];
@@ -43,35 +43,36 @@ classdef FireSimulation < handle
             
             vehicles = [];
             
-%             id = 1;
-%             for i = 1:50
-%                 initialX = rand(1, 1) * 9 + 1;
-%                 initialY = rand(1, 1) * 9 + 1;
-%                 initialBearing = rand(1, 1) * 2 * pi;
-%             
-%                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
-%                 id = id + 1;
-%             end
+                        id = 1;
+                        for i = 1:50
+                            initialX = rand(1, 1) * 9 + 1;
+                            initialY = rand(1, 1) * 9 + 1;
+                            initialBearing = rand(1, 1) * 2 * pi;
             
-            id = 1;
-            for i = 1:6
-                initialX = 8 + 2 * rand(1,1);
-                initialY = 2 + 2 * rand(1,1);
-                initialBearing = rand(1, 1) * 2 * pi;
-                
-                vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
-                id = id + 1;
-            end
-% 
+                            vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+                            id = id + 1;
+                        end
+            
 %             id = 1;
-%             for i = 1:5
-%                 initialX = 5 + 2 * rand(1,1);
-%                 initialY = 2 + 2 * rand(1,1);
-%                 initialBearing = rand(1, 1) * 2 * pi;
+%             for i = 1:10
+%                 initialX = 7.5 + 0.5 * rand(1,1);
+%                 initialY = 1.5 + 0.5 * rand(1,1);
+%                 %                 initialBearing = rand(1, 1) * 2 * pi;
+%                 initialBearing = 0;
 %                 
 %                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
 %                 id = id + 1;
 %             end
+            %
+            %             id = 1;
+            %             for i = 1:5
+            %                 initialX = 5 + 2 * rand(1,1);
+            %                 initialY = 2 + 2 * rand(1,1);
+            %                 initialBearing = rand(1, 1) * 2 * pi;
+            %
+            %                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+            %                 id = id + 1;
+            %             end
             
             drawRooms(rooms, doors);
             
@@ -80,12 +81,11 @@ classdef FireSimulation < handle
                     
                     
                     vehicles(i).nextStep(vehicles);
-%                     vehicles(i).simpleDraw();
-                                        vehicles(i).draw();
+                    vehicles(i).draw();
                 end
                 
                 drawnow;
-                    pause(0.03);
+                pause(0.03);
                 
             end
         end
