@@ -43,26 +43,26 @@ classdef FireSimulation < handle
             
             vehicles = [];
             
-                        id = 1;
-                        for i = 1:50
-                            initialX = rand(1, 1) * 9 + 1;
-                            initialY = rand(1, 1) * 9 + 1;
-                            initialBearing = rand(1, 1) * 2 * pi;
+            id = 1;
+            for i = 1:50
+                initialX = rand(1, 1) * 9 + 1;
+                initialY = rand(1, 1) * 9 + 1;
+                initialBearing = rand(1, 1) * 2 * pi;
+                
+                vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+                id = id + 1;
+            end
             
-                            vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
-                            id = id + 1;
-                        end
-            
-%             id = 1;
-%             for i = 1:10
-%                 initialX = 7.5 + 0.5 * rand(1,1);
-%                 initialY = 1.5 + 0.5 * rand(1,1);
-%                 %                 initialBearing = rand(1, 1) * 2 * pi;
-%                 initialBearing = 0;
-%                 
-%                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
-%                 id = id + 1;
-%             end
+            %             id = 1;
+            %             for i = 1:10
+            %                 initialX = 7.5 + 0.5 * rand(1,1);
+            %                 initialY = 1.5 + 0.5 * rand(1,1);
+            %                 %                 initialBearing = rand(1, 1) * 2 * pi;
+            %                 initialBearing = 0;
+            %
+            %                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+            %                 id = id + 1;
+            %             end
             %
             %             id = 1;
             %             for i = 1:5
