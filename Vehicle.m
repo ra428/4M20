@@ -12,19 +12,10 @@ classdef Vehicle < handle
         positionLeftSensor; % [x; y]
         positionRightSensor;
         
-        leftLineHandle;   %left side of vehicle
-        rightLineHandle;   %right side of vehicle
-        frontLineHandle;   %front of vehicle
-        backLineHandle;   %back of vehile
-        leftWheelHandle;  %wheel left
-        rightWheelHandle;  %wheel right
-        leftSensorHandle;   %sensor left
-        rightSensorHandle;   %sensor right
-        
-        positionHandle; % only use it to draw a blob instead of the full
-        %left/right/front/back and wheels of the vehicle
         
         speed;
+        riskTakingFactor;
+        
         
         room; % the room which it is in
         
@@ -41,6 +32,17 @@ classdef Vehicle < handle
         lastDoor = 0; % last door it came through, arbitrary 0 when it just initialised
         
         
+        leftLineHandle;   %left side of vehicle
+        rightLineHandle;   %right side of vehicle
+        frontLineHandle;   %front of vehicle
+        backLineHandle;   %back of vehile
+        leftWheelHandle;  %wheel left
+        rightWheelHandle;  %wheel right
+        leftSensorHandle;   %sensor left
+        rightSensorHandle;   %sensor right
+        
+        positionHandle; % only use it to draw a blob instead of the full
+        %left/right/front/back and wheels of the vehicle
         
         
     end
@@ -58,20 +60,10 @@ classdef Vehicle < handle
             obj.positionRightSensor = position(1:2) + obj.shaftLength/2*[cos(position(3));sin(position(3))] + ...
                 obj.distanceBetweenSensors/2*[sin(position(3));-cos(position(3))];
             
-            obj.leftLineHandle = line(0,0,'color','k','LineWidth',2);   %left side of vehicle
-            obj.rightLineHandle = line(0,0,'color','k','LineWidth',2);   %right side of vehicle
-            obj.frontLineHandle = line(0,0,'color','k','LineWidth',2);   %front of vehicle
-            obj.backLineHandle = line(0,0,'color','k','LineWidth',2);   %back of vehicle
-            obj.leftWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel left
-            obj.rightWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel right
-            obj.leftSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor left
-            obj.rightSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor right
             
-            obj.positionHandle = line(0,0,'color','k','Marker','.','MarkerSize',20);
-            %position. only use it to draw a blob instead of the full
-            %left/right/front/back and wheels of the vehicle
-            
-            obj.speed = 0.5 + 1*rand(1,1); % initialise the speed randomly
+            % set the speed and risk taking factor randomly
+            obj.speed = 0.5 + 1*rand(1,1);
+            obj.riskTakingFactor =  1+0.25*randn(1,1);
             
             obj.rooms = rooms;
             obj.room = obj.getRoom(rooms);
@@ -91,7 +83,18 @@ classdef Vehicle < handle
                 obj.roomsWithFire = [obj.roomsWithFire, obj.room.id];
             end
             
+            obj.leftLineHandle = line(0,0,'color','k','LineWidth',2);   %left side of vehicle
+            obj.rightLineHandle = line(0,0,'color','k','LineWidth',2);   %right side of vehicle
+            obj.frontLineHandle = line(0,0,'color','k','LineWidth',2);   %front of vehicle
+            obj.backLineHandle = line(0,0,'color','k','LineWidth',2);   %back of vehicle
+            obj.leftWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel left
+            obj.rightWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel right
+            obj.leftSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor left
+            obj.rightSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor right
             
+            obj.positionHandle = line(0,0,'color','k','Marker','.','MarkerSize',20);
+            %position. only use it to draw a blob instead of the full
+            %left/right/front/back and wheels of the vehicle
             
         end
         
@@ -360,7 +363,8 @@ classdef Vehicle < handle
                             % Update cost if door is not the last door AND
                             % the angle between door and fire is smaller than
                             % 90 degrees eg: door is behind the fire.
-                            self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30;
+                            %                             self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30;
+                            self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 10 * self.riskTakingFactor;
                         end
                     end
                 end
@@ -389,7 +393,8 @@ classdef Vehicle < handle
                         
                         % check if robot has seen fire in this room
                         if (any(self.roomsWithFire == room.id))
-                            cost = cost + 30;
+%                             cost = cost + 30;
+                            cost = cost + 10 * self.riskTakingFactor;
                         end
                         
                         % take the lowest cost if there are multiple paths
