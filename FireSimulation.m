@@ -5,7 +5,8 @@ classdef FireSimulation < handle
             close all;
             
             figure(1);
-            figure('units','normalized','outerposition',[0 0 1 1]);
+%             figure('units','normalized','outerposition',[0 0 1 1]);
+            figure('Position',[100,100,1000,1000])
             hold on;
             
             axis([1 10 1 10])
@@ -13,6 +14,7 @@ classdef FireSimulation < handle
             firePosition1 = [6; 3];
             firePosition2 = [9; 7];
             firePosition3 = [2.5; 7.5];
+            firePosition4 = [7; 2];
             
             
             door1 = Door(1, 1.5, 5);
@@ -32,7 +34,7 @@ classdef FireSimulation < handle
             room3 = Room(3, [8,5], [10,5], [8,1], [10,1], [door5, door6], []);
             room4 = Room(4, [8,10], [10,10], [8,5], [10,5], [door6, door7], firePosition2);
             room5 = Room(5, [4,10], [8,10], [4,5], [8,5], [door3, door7], []);
-            room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door1, door2, door3], firePosition3);
+            room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door1, door2, door3], []);
             
             
             rooms = [room1, room2, room3, room4, room5, room6];
@@ -42,7 +44,7 @@ classdef FireSimulation < handle
             vehicles = [];
             
 %             id = 1;
-%             for i = 1:30
+%             for i = 1:50
 %                 initialX = rand(1, 1) * 9 + 1;
 %                 initialY = rand(1, 1) * 9 + 1;
 %                 initialBearing = rand(1, 1) * 2 * pi;
@@ -52,9 +54,9 @@ classdef FireSimulation < handle
 %             end
             
             id = 1;
-            for i = 1:30
-                initialX = 5 + 2 * rand(1,1);
-                initialY = 7 + 2 * rand(1,1);
+            for i = 1:6
+                initialX = 8 + 2 * rand(1,1);
+                initialY = 2 + 2 * rand(1,1);
                 initialBearing = rand(1, 1) * 2 * pi;
                 
                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
