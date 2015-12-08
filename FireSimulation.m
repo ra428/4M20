@@ -5,14 +5,16 @@ classdef FireSimulation < handle
             close all;
             
             figure(1);
-            figure('units','normalized','outerposition',[0 0 1 1]);
+            %             figure('units','normalized','outerposition',[0 0 1 1]);
+            figure('Position',[100,100,1000,1000])
             hold on;
             
             axis([1 10 1 10])
             
-            firePosition1 = [6; 3];
+            firePosition1 = [7.5; 1.5];
             firePosition2 = [9; 7];
             firePosition3 = [2.5; 7.5];
+            firePosition4 = [9; 2.5];
             
        
             door1 = Door(1, 1.5, 5);
@@ -42,61 +44,101 @@ classdef FireSimulation < handle
             
             vehicles = [];
             
-%             id = 1;
-%             for i = 1:30
-%                 initialX = rand(1, 1) * 9 + 1;
-%                 initialY = rand(1, 1) * 9 + 1;
-%                 initialBearing = rand(1, 1) * 2 * pi;
-%             
-%                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
-%                 id = id + 1;
-%             end
+            %             id = 1;
+            %             for i = 1:1
+            %                 initialX = rand(1, 1) * 9 + 1;
+            %                 initialY = rand(1, 1) * 9 + 1;
+            %                 initialBearing = rand(1, 1) * 2 * pi;
+            %
+            % %                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+            %                 vehicles = [vehicles, VehicleWithoutInfo(id, [initialX; initialY; initialBearing], rooms, doors)];
+            %                 id = id + 1;
+            %             end
+            
+            %             id = 1;
+            %             for i = 1:10
+            %                 initialX = 9 + 0.5 * rand(1,1);
+            %                 initialY = 2.5 + 0.5 * rand(1,1);
+            %                 initialBearing = rand(1, 1) * 2 * pi;
+            %
+            %                 vehicles = [vehicles, VehicleWithoutInfo(id, [initialX; initialY; initialBearing], rooms, doors)];
+            %                 id = id + 1;
+            %             end
+            %
+            %
+            %             for i = 1:10
+            %                 initialX = 9 + 0.5 * rand(1,1);
+            %                 initialY = 2.5 + 0.5 * rand(1,1);
+            %                 initialBearing = rand(1, 1) * 2 * pi;
+            %
+            %                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+            %                 id = id + 1;
+            %             end
             
             id = 1;
-            for i = 1:30
-                initialX = 5 + 2 * rand(1,1);
-                initialY = 7 + 2 * rand(1,1);
+            for i = 1:10
+                initialX = rand(1, 1) * 9 + 1;
+                initialY = rand(1, 1) * 9 + 1;
                 initialBearing = rand(1, 1) * 2 * pi;
-                
-                vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+               
+                vehicles = [vehicles, VehicleWithoutInfo(id, [initialX; initialY; initialBearing], rooms, doors)];
                 id = id + 1;
             end
-% 
-%             id = 1;
-%             for i = 1:5
-%                 initialX = 5 + 2 * rand(1,1);
-%                 initialY = 2 + 2 * rand(1,1);
-%                 initialBearing = rand(1, 1) * 2 * pi;
-%                 
-%                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
-%                 id = id + 1;
-%             end
+            
+                            
+            for i = 1:20
+                initialX = rand(1, 1) * 9 + 1;
+                initialY = rand(1, 1) * 9 + 1;
+                initialBearing = rand(1, 1) * 2 * pi;
+               
+                vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+                id = id + 1;
+            end  
+            
+            
+            
+            %
+            %             id = 1;
+            %             for i = 1:5
+            %                 initialX = 5 + 2 * rand(1,1);
+            %                 initialY = 2 + 2 * rand(1,1);
+            %                 initialBearing = rand(1, 1) * 2 * pi;
+            %
+            %                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+            %                 id = id + 1;
+            %             end
             
             drawRooms(rooms, doors);
             
-            while (~self.allVehiclesExited(vehicles))
+            numOfSteps = 0;
+            while (~self.allVehiclesDone(vehicles))
                 for i = 1:numel(vehicles)
-                    
-                    
-                    vehicles(i).nextStep(vehicles);
-%                     vehicles(i).simpleDraw();
-                                        vehicles(i).draw();
+                    if (vehicles(i).alive)
+                        
+                        vehicles(i).nextStep(vehicles);
+                        vehicles(i).draw();
+                    end
                 end
                 
                 drawnow;
-                    pause(0.03);
+                pause(0.03);
+                numOfSteps = numOfSteps + 1;
                 
             end
+            numOfSteps
         end
         
-        function allVehiclesExited = allVehiclesExited(self, vehicles)
-            allVehiclesExited = false;
+        function allVehiclesDone = allVehiclesDone(self, vehicles)
+            % returns true if all vehicles are dead or have exited
+            allVehiclesDone = false;
             for i = 1: numel(vehicles)
                 if (~vehicles(i).hasExited)
-                    return;
+                    if (vehicles(i).alive)
+                        return;
+                    end
                 end
             end
-            allVehiclesExited = true;
+            allVehiclesDone = true;
         end
     end
     
