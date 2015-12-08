@@ -17,7 +17,6 @@ classdef FireSimulation < handle
             firePosition2 = [9; 7];
             firePosition3 = [2.5; 7.5];
             firePosition4 = [9; 2.5];
-
                         
             door1 = Door(1,  false, 1.5, 5);
             door2 = Door(2,  false, 3.5, 5);
@@ -39,14 +38,15 @@ classdef FireSimulation < handle
             % last entry is always the exit
             doors = [door1, door2, door3, door4, door5, door6, door7, exitDoor1, exitDoor2,exitDoor3, masterExitDoor];
             
-            room1 = Room(1, [1,5], [4,5], [1,1], [4,1], [door1, door2, door4, exitDoor2], []);
-
-            room2 = Room(2, [4, 5], [8, 5], [4, 1], [8, 1], [door4, door5], firePosition1);
-            room3 = Room(3, [8,5], [10,5], [8,1], [10,1], [door5, door6], []);
-            room4 = Room(4, [8,10], [10,10], [8,5], [10,5], [door6, door7], firePosition2);
-            room5 = Room(5, [4,10], [8,10], [4,5], [8,5], [door3, door7, exitDoor3], []);
-            room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door1, door2, door3, exitDoor1], firePosition3);
-            masterExitRoom = Room(7, [-1 -1 ],[-1 -1],[-1 -1],[-1 -1], [exitDoor1, exitDoor2, exitDoor3, masterExitDoor], []);
+            % room1 = Room(1, [1,5], [4,5], [1,1], [4,1], [door1, door2, door4, exitDoor2], []);
+            % room2 = Room(2, [4, 5], [8, 5], [4, 1], [8, 1], [door4, door5], firePosition1);
+            % room3 = Room(3, [8,5], [10,5], [8,1], [10,1], [door5, door6], []);
+            % room4 = Room(4, [8,10], [10,10], [8,5], [10,5], [door6, door7], firePosition2);
+            % room5 = Room(5, [4,10], [8,10], [4,5], [8,5], [door3, door7, exitDoor3], []);
+            % room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door1, door2, door3, exitDoor1], firePosition3);
+            % masterExitRoom = Room(7, [-1 -1 ],[-1 -1],[-1 -1],[-1 -1], [exitDoor1, exitDoor2, exitDoor3, masterExitDoor], []);
+            
+            BSG05 = Room(1, )
                         
             rooms = [room1, room2, room3, room4, room5, room6];
                        

@@ -14,26 +14,18 @@ classdef Vehicle < handle
         
         healthPoints;
         alive;
-        
         speed;
         fearFactor;
-        
-        
-        room; % the room which it is in
-        
+         room; % the room which it is in
         rooms;
         doors;
-        
         costs;
         
         target;
         roomsWithFire;
-        
         hasExited = false;
-        
         lastDoor = 0; % last door it came through, arbitrary 0 when it just initialised
-        
-        
+               
         leftLineHandle;   %left side of vehicle
         rightLineHandle;   %right side of vehicle
         frontLineHandle;   %front of vehicle
@@ -42,7 +34,6 @@ classdef Vehicle < handle
         rightWheelHandle;  %wheel right
         leftSensorHandle;   %sensor left
         rightSensorHandle;   %sensor right
-        
         positionHandle; % only use it to draw a blob instead of the full
         %left/right/front/back and wheels of the vehicle
         
@@ -53,8 +44,7 @@ classdef Vehicle < handle
         function obj = Vehicle(id, position, rooms, doors)
             
             obj.id = id;
-            
-            
+                        
             obj.position = position;
             obj.positionHistory = (position);
             obj.positionLeftSensor = position(1:2) + obj.shaftLength/2*[cos(position(3));sin(position(3))] + ...
@@ -68,18 +58,12 @@ classdef Vehicle < handle
             % set the speed and risk taking factor randomly
             obj.speed = 0.5 + 1*rand(1,1);
             obj.fearFactor =  1+0.25*randn(1,1);
-            
             obj.rooms = rooms;
             obj.room = obj.getRoom(rooms);
-            
             obj.doors = doors;
-            
             obj.initialiseCosts();
-            
             obj.target = obj.getTarget(obj.room);
-            
             obj.faceDoor([obj.target.x, obj.target.y]);
-            
             obj.roomsWithFire = [];
             
             % initialise room with fire for the current room
@@ -95,7 +79,6 @@ classdef Vehicle < handle
             obj.rightWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel right
             obj.leftSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor left
             obj.rightSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor right
-            
             obj.positionHandle = line(0,0,'color','k','Marker','.','MarkerSize',20);
             %position. only use it to draw a blob instead of the full
             %left/right/front/back and wheels of the vehicle
@@ -127,8 +110,7 @@ classdef Vehicle < handle
             % sensor]
             distance = [norm(self.positionLeftSensor - positionDoor), norm(self.positionRightSensor - positionDoor)];
         end
-        
-        
+                
         function faceDoor(self, positionDoor)
             angle = self.getAngleToDoor(positionDoor);
             if (angle > 0)
@@ -147,7 +129,16 @@ classdef Vehicle < handle
         function nextStep(self, vehicles)
             % vehicles is all the vehicles on the map
             if (~self.hasExited)
-                if (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.3)
+%                 if(self.target.isExit==true && (norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.3))
+                if(self.target.isExit==true && (norm(self.position(1:2) - [self.target.x; self.target.y]) < 0.3))
+                                    % it has reached the exit
+                    self.hasExited = true;
+                    % move it to a far away place so it does not repel other
+                    % vehicles trying to go to the exit
+                    self.updatePosition(1000, 1000);
+                else
+                    
+                % if (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.3)
                     % only proceed calculation if it has not reached the exit
                     if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.2))
                         % Only proceed if vehicle is not at target door
@@ -248,7 +239,6 @@ classdef Vehicle < handle
                         end
                         
                         % share the information of RoomsWithFire
-                        
                         vehiclesInRoom = self.getVehiclesInRoom(vehicles);
                         % loop through all the doors
                         allRoomsWithFire = self.roomsWithFire;
@@ -263,19 +253,14 @@ classdef Vehicle < handle
                                 end
                             end
                         end
-                        
-                        
-                        
-                        
+                                                                   
                         self.roomsWithFire = allRoomsWithFire;
-                        
-                        
+                                               
                         % update the costs of the all the doors on the map
                         %                         self.updateCosts(lastDoor);
                         self.initialiseCosts();
                         
                         % change the target
-                        
                         self.target = self.getTarget(self.room);
                         
                         % face the door
@@ -291,13 +276,14 @@ classdef Vehicle < handle
                             vehiclesInRoom(i).faceDoor([vehiclesInRoom(i).target.x, vehiclesInRoom(i).target.y]);
                         end
                     end
-                else
-                    % it has reached the exit
-                    self.hasExited = true;
-                    % move it to a far away place so it does not repel other
-                    % vehicles trying to go to the exit
-                    self.updatePosition(1000, 1000);
-                    
+%                 else
+%                     % it has reached the exit
+%                     self.hasExited = true;
+%                     % move it to a far away place so it does not repel other
+%                     % vehicles trying to go to the exit
+%                     self.updatePosition(1000, 1000);
+%                     
+%                 end
                 end
             end
         end
@@ -314,8 +300,7 @@ classdef Vehicle < handle
                 end
             end
         end
-        
-        
+                
         function angle = getAngleToDoor(self, positionDoor)
             
             u = [positionDoor(1) - self.position(1), positionDoor(2) - self.position(2)];
@@ -334,33 +319,38 @@ classdef Vehicle < handle
                 end
             end
         end
-        
-        
+         
         function initialiseCosts(self)
             
-            % initialise cost to a arbitrary high value
+            % initialise all door cost to an arbitrary high value
             self.costs = ones(1, size(self.doors, 2)) * 1000;
             
             checkedRoomIds = [];
             
+            % identify the masterExit from which the recursive algorithm will calculate costs
             exit = self.doors(end);
-            self.costs(exit.id) = 1;
+            % self.costs(exit.id) = 1;
+            
+            % identify the exits and set their costs to an arbitrary low value
+            for i = 1:numel(self.doors)
+                if (self.doors(i).isExit == true)
+                    self.costs(self.doors(i).id) = 1;
+                end
+            end
             
             rooms = exit.rooms;
             
             for i = 1:numel(rooms)
                 self.setCostsForRoom(rooms(i), exit, checkedRoomIds);
             end
-            
-            
+                        
             % finally update the doors in the room it is currently in after
             % updating the costs of all the doors. If this room has fire,
             % add 30 to all the doors blocked by fire except the door it came
             % from (if it was just initialised, add 30 to all doors blocked
             % by fire)
             if (self.room.hasFire())
-                
-                
+                                
                 for i = 1: numel(self.room.doors)
                     if (self.room.doors(i) ~= self.lastDoor)
                         angleToDoor = self.getAngleToDoor([self.room.doors(i).x;self.room.doors(i).y]);
@@ -384,8 +374,7 @@ classdef Vehicle < handle
                 self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + norm(self.position(1:2) - [self.room.doors(i).x; self.room.doors(i).y]);
             end
         end
-        
-        
+
         function setCostsForRoom(self, room, referenceDoor, checkedRoomIds)
             % referenceDoor is the door you came through
             %
@@ -414,8 +403,7 @@ classdef Vehicle < handle
                 end
                 
                 checkedRoomIds = [checkedRoomIds, room.id];
-                
-                
+                                
                 for i = 1: numel(doors)
                     rooms = doors(i).rooms;
                     for j = 1: numel(rooms)
@@ -427,9 +415,7 @@ classdef Vehicle < handle
                 end
             end
         end
-        
-        
-        
+                 
         function target = getTarget(self, room)
             % Returns the door with the lowest cost in the room
             doors = room.doors;
@@ -443,8 +429,7 @@ classdef Vehicle < handle
                 end
             end
         end
-        
-        
+                 
         function draw(self)
             r_c1 = self.position(1:2) + self.shaftLength/2*[-sin(self.position(3));cos(self.position(3))] - self.shaftLength/2*[cos(self.position(3));sin(self.position(3))];
             r_c2 = r_c1 + self.shaftLength*[cos(self.position(3));sin(self.position(3))];
@@ -489,8 +474,7 @@ classdef Vehicle < handle
             % sensor]
             distance = [norm(self.positionLeftSensor - vehicle.position(1:2)), norm(self.positionRightSensor - vehicle.position(1:2))];
         end
-        
-        
+                
         function angle = getAngleToVehicle(self, vehicle)
             
             u = vehicle.position(1:2) - self.position(1:2);
