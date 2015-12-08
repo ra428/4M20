@@ -459,6 +459,7 @@ classdef Vehicle < handle
             if (~self.hasExited)
                 plot(self.positionHistory(1, :), self.positionHistory(2, :));
             end
+
             
             set(self.leftLineHandle,'xdata',[r_c1(1) r_c2(1)],'ydata',[r_c1(2) r_c2(2)])
             set(self.frontLineHandle,'xdata',[r_c2(1) r_c3(1)],'ydata',[r_c2(2) r_c3(2)])
