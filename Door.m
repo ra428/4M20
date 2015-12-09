@@ -32,10 +32,10 @@ classdef Door < handle
                         
             if (self.orientation == 0) 
                 % vertical
-                set(lineHandle,'xdata',[self.x self.x],'ydata',[self.y - 0.5 self.y + 0.5]);
+                set(lineHandle,'xdata',[self.x self.x],'ydata',[self.y - 0.1 self.y + 0.1]);
             else 
                 % horizontal
-                set(lineHandle,'xdata',[self.x - 0.5 self.x + 0.5],'ydata',[self.y self.y]);
+                set(lineHandle,'xdata',[self.x - 0.1 self.x + 0.1],'ydata',[self.y self.y]);
             end
             
             drawnow;

@@ -140,7 +140,7 @@ classdef Vehicle < handle
                     
                 % if (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.3)
                     % only proceed calculation if it has not reached the exit
-                    if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.2))
+                    if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.05))
                         % Only proceed if vehicle is not at target door
                         
                         %                     vehiclesInRoom = self.getVehiclesInRoom(vehicles);

@@ -1,6 +1,7 @@
 clear all;
 
 
-fireSimulation = FireSimulation();
+% fireSimulation = FireSimulation();
+fireSimulation = BakerFirstFloor();
 
 fireSimulation.run();
