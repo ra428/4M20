@@ -61,8 +61,7 @@ classdef BakerFirstFloor < handle
             exitDoor{3} = Door(992, true, 67/sf, -1/sf);       % Fire exit at stairs near LR5
             
             masterExitDoor = Door(9999, true, -1,-1);      % Master exit
-            
-            
+
             % Assign all doors into 1 long array;
             doors = [door{1}];
             for i = 2:numel(door)
@@ -73,15 +72,13 @@ classdef BakerFirstFloor < handle
             end
             % last entry is always the exit
             doors = [doors, masterExitDoor];
-            
-            %                 doors = [door1, door2, door3, door4, door5, door6, door7, door8, door9, door10, door11, exitDoor1, exitDoor2, masterExitDoor];
-            
+
             % Rooms must be defined as topLeft, topRight, bottomLeft, bottomRight
             room = {};
             % Baker South Wing
             room{1 }= Room(1 , [0 9]/sf,   [19 9]/sf,  [0 0]/sf,   [19 0]/sf,  [door{2}, door{3}, door{4}] ,[] );           % Language unit 1st part, BS1_05_1
             room{2 }= Room(2 , [19 9]/sf,  [22 9]/sf,  [19 7]/sf,  [22 7 ]/sf, [door{2}, door{1}, door{5}],[] );            % Corridor next to stairs, BS1_14
-            room{3 }= Room(3 , [22 9]/sf,  [24 9]/sf,  [22 7]/sf,  [24 7]/sf,  [door{1}, door{13}, exitDoor{1}] ,[] );                % Stair corridor, BS1_05
+            room{3 }= Room(3 , [22 9]/sf,  [24 9]/sf,  [22 7]/sf,  [24 7]/sf,  [door{1}, door{13}, exitDoor{1}] ,[] );      % Stair corridor, BS1_05
             room{4 }= Room(4 , [0 20]/sf,  [12 20]/sf, [0 9]/sf,   [12 9]/sf,  [door{3}] ,[]);                              % Language Unit 2nd part, BS1_05_2
             room{5 }= Room(5 , [12 20]/sf, [19 20]/sf, [12 9]/sf,  [19 9]/sf,  [door{4}, door{6}] ,[]);                     % Meeting room, Baker South wing, BS1_06
             room{6 }= Room(6 , [19 20]/sf, [20 20]/sf, [19 9]/sf,  [20 9]/sf,  [door{5}, door{6}, door{7}] ,[]);            % Corridor alongside Language Unit, BS1_15_1
@@ -94,25 +91,21 @@ classdef BakerFirstFloor < handle
             
             % Baker Centre Wing
             room{13}= Room(14, [24 15]/sf , [44 15]/sf, [24 0]/sf, [44 0]/sf, [door{13}, door{14}, door{15}, door{16},...
-                door{17}, door{18}, door{19}, door{20}, door{21}, door{22}, door{23},door{24}, door{25}] ,[]);% Library, part 1, BE1_10_1
+                door{17}, door{18}, door{19}, door{20}, door{21}, door{22}, door{23},door{24}, door{25}] ,[]);              % Library, part 1, BE1_10_1
             room{14}= Room(15, [32 28]/sf, [44 28]/sf, [32 15]/sf, [44 15]/sf, [door{14}, door{15}, door{16},...
-                door{17}, door{18}, door{19}, door{20}, door{21}, door{22}, door{23},door{24}], []);      % Library, part 2, BE1_10_2
-            room{15}= Room(16, [44 12]/sf, [64 12]/sf, [44 0]/sf, [64 0]/sf, [door{27}], []);        % LR 6, BE1_16
-            room{16}= Room(17, [44 15]/sf, [64 15]/sf, [44 12 ]/sf, [64 12]/sf, [door{25}, door{26}],[]);      % Corridor beside LR6, BE1_17
+                door{17}, door{18}, door{19}, door{20}, door{21}, door{22}, door{23},door{24}], []);                        % Library, part 2, BE1_10_2
+            room{15}= Room(16, [44 12]/sf, [64 12]/sf, [44 0]/sf, [64 0]/sf, [door{27}], []);                               % LR 6, BE1_16
+            room{16}= Room(17, [44 15]/sf, [64 15]/sf, [44 12 ]/sf, [64 12]/sf, [door{25}, door{26}],[]);                   % Corridor beside LR6, BE1_17
             room{17}= Room(18, [64 15]/sf, [75 15]/sf, [64 6]/sf, [75 6]/sf, [door{26}, door{27}, door{28}, ...
-                door{29}, door{30}, door{31}, door{32}], []);         % Lobby, BS1_18
-            room{18}= Room(19, [64 6]/sf, [72 6]/sf, [64 -1]/sf, [72 -1]/sf,[door{28}, exitDoor{3}],[]);          % Stairs,
-            room{19}= Room(20, [73 5]/sf, [75 5]/sf, [73 0]/sf, [75 0]/sf, [door{29}],[]);           % First aid room, BE1_23
-            room{20}= Room(21, [74 7]/sf, [75 7]/sf, [74 5]/sf, [75 5]/sf,[door{30}],[]);            % Wheel-chair access toilet
-            room{21}= Room(22, [75 15]/sf, [87 15]/sf, [75 0]/sf, [87 0]/sf, [door{31}],[]);         % LR 5, BE1_24
+                door{29}, door{30}, door{31}, door{32}], []);                                                               % Lobby, BS1_18
+            room{18}= Room(19, [64 6]/sf, [72 6]/sf, [64 -1]/sf, [72 -1]/sf,[door{28}, exitDoor{3}],[]);                    % Stairs,
+            room{19}= Room(20, [73 5]/sf, [75 5]/sf, [73 0]/sf, [75 0]/sf, [door{29}],[]);                                  % First aid room, BE1_23
+            room{20}= Room(21, [74 7]/sf, [75 7]/sf, [74 5]/sf, [75 5]/sf,[door{30}],[]);                                   % Wheel-chair access toilet
+            room{21}= Room(22, [75 15]/sf, [87 15]/sf, [75 0]/sf, [87 0]/sf, [door{31}],[]);                                % LR 5, BE1_24
             
             % Baker North Wing
-            room{22}= Room(23, [65 45]/sf, [87 45]/sf, [65 15]/sf, [87 15]/sf, [door{32}],[]);       % DPO, BN1_01
-            
-            
-            
-            
-            
+            room{22}= Room(23, [65 45]/sf, [87 45]/sf, [65 15]/sf, [87 15]/sf, [door{32}],[]);                              % DPO, BN1_01
+
             % Master Exit Room from which the costing recursion starts
             masterExitRoom = Room(999, [-1 -1 ],[-1 -1],[-1 -1],[-1 -1], [exitDoor{1}, exitDoor{2}, exitDoor{3},masterExitDoor], []);
             
