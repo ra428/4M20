@@ -75,22 +75,30 @@ classdef FireSimulation < handle
             %             end
             
             id = 1;
-            for i = 1:10
-                initialX = rand(1, 1) * 9 + 1;
-                initialY = rand(1, 1) * 9 + 1;
-                initialBearing = rand(1, 1) * 2 * pi;
-               
-                vehicles = [vehicles, VehicleWithoutInfo(id, [initialX; initialY; initialBearing], rooms, doors)];
-                id = id + 1;
-            end
+%             for i = 1:10
+%                 initialX = rand(1, 1) * 9 + 1;
+%                 initialY = rand(1, 1) * 9 + 1;
+%                 initialBearing = rand(1, 1) * 2 * pi;
+%                
+%                 vehicles = [vehicles, VehicleWithoutInfo(id, [initialX; initialY; initialBearing], rooms, doors)];
+%                 id = id + 1;
+%             end
             
-                            
+            numOfVehicles = 20;
+            colours = hsv(numOfVehicles);
             for i = 1:20
                 initialX = rand(1, 1) * 9 + 1;
                 initialY = rand(1, 1) * 9 + 1;
                 initialBearing = rand(1, 1) * 2 * pi;
+                
+                if (i < 10)
+                    withInfo = true;
+                else
+                    withInfo = false;
+                end
                
-                vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
+                vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
+%                 vehicles = [vehicles, VehicleWithInfo(id, [initialX; initialY; initialBearing], rooms, doors)];
                 id = id + 1;
             end  
             
