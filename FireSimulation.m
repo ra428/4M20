@@ -16,7 +16,7 @@ classdef FireSimulation < handle
             firePosition3 = [2.5; 7.5];
             firePosition4 = [9; 2.5];
             
-            
+       
             door1 = Door(1, 1.5, 5);
             door2 = Door(2, 3.5, 5);
             door3 = Door(3, 4, 5.5);
@@ -24,7 +24,8 @@ classdef FireSimulation < handle
             door5 = Door(5, 8, 1.5);
             door6 = Door(6, 9.5, 5);
             door7 = Door(7, 8, 9.5);
-            exit = Door(8, 2, 1);
+%             exit = Door(8, 2, 1);
+            exit = Door(8,-1,-1);
             doors = [door1, door2, door3, door4, door5, door6, door7, exit]; % the last entry is always the exit
             
             
