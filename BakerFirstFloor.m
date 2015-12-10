@@ -58,7 +58,7 @@ classdef BakerFirstFloor < handle
             exitDoor = {};
             exitDoor{1} = Door(990, true, 23/sf, 7/sf);     % Fire exit at stairs beside library
             exitDoor{2} = Door(991, true, 20/sf, 35/sf);    % Fire exit at end of South Wing
-            exitDoor{3} = Door(992, true, 67/sf, -1/sf);       % Fire exit at stairs near LR5
+            exitDoor{3} = Door(992, true, 67/sf, -1/sf);    % Fire exit at stairs near LR5
             
             masterExitDoor = Door(9999, true, -1,-1);      % Master exit
 
