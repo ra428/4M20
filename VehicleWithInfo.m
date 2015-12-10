@@ -1,6 +1,6 @@
 % legacy code for backup, do not use
 
-classdef VehicleWithoutInfo < handle
+classdef VehicleWithInfo < handle
     properties
         
         id;
@@ -25,10 +25,6 @@ classdef VehicleWithoutInfo < handle
         
         rooms;
         doors;
-        
-        roomsSeen;
-        % the rooms the vehicle has been to. The vehicle does not know the
-        % layout of the building.
         
         costs;
         
@@ -56,7 +52,7 @@ classdef VehicleWithoutInfo < handle
     end
     
     methods
-        function obj = VehicleWithoutInfo(id, position, rooms, doors)
+        function obj = VehicleWithInfo(id, position, rooms, doors)
             
             obj.id = id;
             
@@ -68,20 +64,17 @@ classdef VehicleWithoutInfo < handle
             obj.positionRightSensor = position(1:2) + obj.shaftLength/2*[cos(position(3));sin(position(3))] + ...
                 obj.distanceBetweenSensors/2*[sin(position(3));-cos(position(3))];
             
-            obj.healthPoints = 30000;
+            obj.healthPoints = 30;
             obj.alive = true;
             
             % set the speed and risk taking factor randomly
             obj.speed = 0.5 + 1*rand(1,1);
             obj.fearFactor =  1+0.25*randn(1,1);
-%             obj.fearFactor = 3;
             
             obj.rooms = rooms;
             obj.room = obj.getRoom(rooms);
             
             obj.doors = doors;
-            
-            obj.roomsSeen = [obj.room.id];
             
             obj.initialiseCosts();
             
@@ -102,8 +95,8 @@ classdef VehicleWithoutInfo < handle
             obj.backLineHandle = line(0,0,'color','k','LineWidth',2);   %back of vehicle
             obj.leftWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel left
             obj.rightWheelHandle = line(0,0,'color','k','LineWidth',5);  %wheel right
-            obj.leftSensorHandle = line(0,0,'color','g','Marker','.','MarkerSize',20);   %sensor left
-            obj.rightSensorHandle = line(0,0,'color','g','Marker','.','MarkerSize',20);   %sensor right
+            obj.leftSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor left
+            obj.rightSensorHandle = line(0,0,'color','r','Marker','.','MarkerSize',20);   %sensor right
             
             obj.positionHandle = line(0,0,'color','k','Marker','.','MarkerSize',20);
             %position. only use it to draw a blob instead of the full
@@ -158,9 +151,6 @@ classdef VehicleWithoutInfo < handle
             if (~self.hasExited)
                 if (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.3)
                     % only proceed calculation if it has not reached the exit
-                   
-                    
-                    
                     if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.2))
                         % Only proceed if vehicle is not at target door
                         
@@ -181,13 +171,11 @@ classdef VehicleWithoutInfo < handle
                             distanceToFire = [1000;1000];
                         end
                         
-                        % Change speed to travel to door 
                         distanceToDoor = self.getDistanceToDoor([self.target.x; self.target.y]);
                         
                         omegaLeftWheel = 10 * distanceToDoor(1) + 7 * distanceToFire(2);
                         omegaRightWheel = 10 * distanceToDoor(2) + 7 * distanceToFire(1);
                         
-                        % Change speed for separation
                         % add parameters to omegaLeftWheel and omegaRightWheel
                         % from nearby vehicles
                         vehiclesInFront = self.getVehiclesInFront(vehicles);
@@ -202,7 +190,6 @@ classdef VehicleWithoutInfo < handle
                             omegaRightWheel = omegaRightWheel + 5 * distanceToVehicle(1);
                         end
                         
-                        % Change direction when hitting wall
                         % add parameters to omegaLeftWheel and omegaRightWheel
                         % from nearby walls, also face the target if next to
                         % the wall
@@ -245,8 +232,6 @@ classdef VehicleWithoutInfo < handle
                         self.lastDoor = self.target;
                         lastRoom = self.room; % self.room and target will be updated soon, just save a copy
                         
-                        
-                        
                         %% auxilliary function to find the next room
                         potentialRooms = self.target.rooms;
                         
@@ -257,14 +242,8 @@ classdef VehicleWithoutInfo < handle
                             self.room = potentialRooms(1);
                         end
                         
-                        % update knowledge of the map
-                        if (~any(self.roomsSeen == self.room.id))
-                            self.roomsSeen = [self.roomsSeen, self.room.id];
-                        end
-                        
                         % immediately check the room after going into a new one
                         % If room has a fire, update roomsWithFire
-                        
                         
                         if (self.room.hasFire() && ~any(self.room.id == self.roomsWithFire))
                             self.roomsWithFire = [self.roomsWithFire, self.room.id];
@@ -275,9 +254,6 @@ classdef VehicleWithoutInfo < handle
                         vehiclesInRoom = self.getVehiclesInRoom(vehicles);
                         % loop through all the doors
                         allRoomsWithFire = self.roomsWithFire;
-                        
-                        
-                        
                         for i = 1: numel(vehiclesInRoom)
                             
                             for k = 1: numel(vehiclesInRoom(i).roomsWithFire)
@@ -309,16 +285,12 @@ classdef VehicleWithoutInfo < handle
                         
                         % now update other vehicles and force them to
                         % rethink about the route
-                        if (lastRoom.hasFire())
-                            
-                            for i  = 1: numel(vehiclesInRoom)
-                                if (~any(vehiclesInRoom(i).roomsWithFire==lastRoom.id))
-                                    vehiclesInRoom(i).roomsWithFire = [vehiclesInRoom(i).roomsWithFire, lastRoom.id];
-                                end
-                                vehiclesInRoom(i).initialiseCosts();
-                                vehiclesInRoom(i).target = vehiclesInRoom(i).getTarget(self.room);
-                                vehiclesInRoom(i).faceDoor([vehiclesInRoom(i).target.x, vehiclesInRoom(i).target.y]);
-                            end
+                        for i  = 1: numel(vehiclesInRoom)
+                            vehiclesInRoom(i).roomsWithFire = allRoomsWithFire;
+                            %                             vehiclesInRoom(i).updateCosts(lastDoor);
+                            vehiclesInRoom(i).initialiseCosts();
+                            vehiclesInRoom(i).target = vehiclesInRoom(i).getTarget(self.room);
+                            vehiclesInRoom(i).faceDoor([vehiclesInRoom(i).target.x, vehiclesInRoom(i).target.y]);
                         end
                     end
                 else
@@ -392,9 +364,6 @@ classdef VehicleWithoutInfo < handle
                 
                 
                 for i = 1: numel(self.room.doors)
-                    if (self.id == 1)
-                        xxxx = 5;
-                    end
                     if (self.room.doors(i) ~= self.lastDoor)
                         angleToDoor = self.getAngleToDoor([self.room.doors(i).x;self.room.doors(i).y]);
                         angleToFire = self.getAngleToDoor(self.room.firePositions);
@@ -430,21 +399,11 @@ classdef VehicleWithoutInfo < handle
                     if (doors(i).id ~= referenceDoor.id)
                         % check if cost has been set, reset cost if cost is
                         % lower
-                        
-                        if (any(self.roomsSeen == room.id))
-                            % it has seen the room, it has knowledge of the
-                            % room. update the cost just like a vehicle
-                            % which knows the map
-                            cost = self.costs(referenceDoor.id) + norm([doors(i).x, doors(i).y] - [referenceDoor.x, referenceDoor.y]);
-                            
-                        else
-                            % haven't seen the room
-                            cost = self.costs(referenceDoor.id);
-                        end
+                        cost = self.costs(referenceDoor.id) + norm([doors(i).x, doors(i).y] - [referenceDoor.x, referenceDoor.y]);
                         
                         % check if robot has seen fire in this room
                         if (any(self.roomsWithFire == room.id))
-                            %                                cost = cost + 30;
+%                             cost = cost + 30;
                             cost = cost + 10 * self.fearFactor;
                         end
                         
@@ -635,32 +594,14 @@ classdef VehicleWithoutInfo < handle
         end
         
         function updateHealth(self)
-            if (self.room.hasFire())
-                distance = self.getDistanceToFire(self.room.firePositions);
-                self.healthPoints = self.healthPoints - exp(-distance/2);
-                
-                if (self.healthPoints < 1)
-                    self.alive = false;
-                end
-            end
-            
-        end
-        
-        function isRoomAjacentRoom = isRoomAdjacentRoom(self, otherRoom)
-            % check if otherRoom is adjacent to the room the vehicle is
-            % currently in
-            isRoomAjacentRoom = false;
-            
-            doorIds = [];
-            for i = 1: numel(self.room.doors)
-                doorIds = [doorIds, self.room.doors(i).id];
-            end
-            
-            for j = 1: numel(otherRoom.doors)
-                if (any(doorIds == otherRoom.doors(j).id))
-                    isRoomAdjacentRoom = true;
-                end
-            end
+           if (self.room.hasFire())
+               distance = self.getDistanceToFire(self.room.firePositions);
+               self.healthPoints = self.healthPoints - exp(-distance/2);
+               
+               if (self.healthPoints < 1)
+                   self.alive = false;
+               end
+           end
             
         end
         
