@@ -348,7 +348,7 @@ classdef Vehicle < handle
         
         function room = getRoom(self, rooms)
             for i = 1: numel(rooms)
-                room = rooms{i};
+                room = rooms(i);
                 if ((self.position(1) < room.topRight(1)) && (self.position(1) > room.topLeft(1)) && (self.position(2) > room.bottomLeft(2)) && (self.position(2) < room.topRight(2)))
                     break;
                 end
@@ -364,13 +364,13 @@ classdef Vehicle < handle
             checkedRoomIds = [];
             
             % identify the masterExit from which the recursive algorithm will calculate costs
-            exit = self.doors{end};
+            exit = self.doors(end);
             % self.costs(exit.id) = 1;
             
             % identify the exits and set their costs to an arbitrary low value
             for i = 1:numel(self.doors)
-                if (self.doors{i}.isExit == true)
-                    self.costs(self.doors{i}.id) = 1;
+                if (self.doors(i).isExit == true)
+                    self.costs(self.doors(i).id) = 1;
                 end
             end
             

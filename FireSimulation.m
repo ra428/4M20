@@ -16,42 +16,51 @@ classdef FireSimulation < handle
             firePosition{4} = [9; 2.5];
 
             % Doors
-            doors = {};
-            doors{1} = Door(1,  false, 1.5, 5);
-            doors{2} = Door(2,  false, 3.5, 5);
-            doors{3} = Door(3,  false, 4, 5.5);
-            doors{4} = Door(4,  false, 4, 4.5);
-            doors{5} = Door(5,  false, 8, 1.5);
-            doors{6} = Door(6,  false, 9.5, 5);
-            doors{7} = Door(7,  false, 8, 9.5);
+            door = {};
+            door{1} = Door(1,  false, 1.5, 5);
+            door{2} = Door(2,  false, 3.5, 5);
+            door{3} = Door(3,  false, 4, 5.5);
+            door{4} = Door(4,  false, 4, 4.5);
+            door{5} = Door(5,  false, 8, 1.5);
+            door{6} = Door(6,  false, 9.5, 5);
+            door{7} = Door(7,  false, 8, 9.5);
             
             % Fire exits
             exitDoor = {};
             exitDoor{1} = Door(9, true, 2, 1);
             masterExitDoor = Door(10, true, -1,-1);
-                        
+             
             % Assign all doors into 1 long array;
+            doors = [door{1}];
+            for i = 2:numel(door)
+                doors = [doors, door{i}];
+            end
             for j = 1:numel(exitDoor)
-                doors{end+j} = exitDoor{j};
+                doors = [doors, exitDoor{j}];
             end
             % last entry is always the exit
-            doors{end+1} = masterExitDoor;
+            doors = [doors, masterExitDoor];
             
             % Rooms
-            rooms = {};
-            rooms{1} = Room(1, [1,5], [4,5], [1,1], [4,1], [doors{1}, doors{2}, doors{4}, exitDoor{1}], []);
-            rooms{2} = Room(2, [4, 5], [8, 5], [4, 1], [8, 1], [doors{4}, doors{5}], firePosition{1});
-            rooms{3} = Room(3, [8,5], [10,5], [8,1], [10,1], [doors{5}, doors{6}], []);
-            rooms{4} = Room(4, [8,10], [10,10], [8,5], [10,5], [doors{6}, doors{7}], firePosition{2});
-            rooms{5} = Room(5, [4,10], [8,10], [4,5], [8,5], [doors{3}, doors{7}], []);
-            rooms{6} = Room(6, [1,10], [4,10], [1,5], [4,5], [doors{1}, doors{2}, doors{3}], firePosition{3});
+            room = {};
+            room{1} = Room(1, [1,5], [4,5], [1,1], [4,1], [door{1}, door{2}, door{4}, exitDoor{1}], []);
+            room{2} = Room(2, [4, 5], [8, 5], [4, 1], [8, 1], [door{4}, door{5}], firePosition{1});
+            room{3} = Room(3, [8,5], [10,5], [8,1], [10,1], [door{5}, door{6}], []);
+            room{4} = Room(4, [8,10], [10,10], [8,5], [10,5], [door{6}, door{7}], firePosition{2});
+            room{5} = Room(5, [4,10], [8,10], [4,5], [8,5], [door{3}, door{7}], []);
+            room{6} = Room(6, [1,10], [4,10], [1,5], [4,5], [door{1}, door{2}, door{3}], firePosition{3});
             masterExitRoom = Room(7, [-1 -1 ],[-1 -1],[-1 -1],[-1 -1], [exitDoor{1}, masterExitDoor], []);
             % note how the masterExitRoom is not known to the vehicles!, it
             % is only used for the recursion?
-            
-            vehicles = [];
-            
+
+            % Assign all rooms into one long array
+            rooms = [room{1}];
+            for i = 2:numel(room)
+                rooms = [rooms, room{i}];
+            end
+ 
             % Create an array of vehicles
+            vehicles = [];
             id =1;
             numOfVehiclesWithInfo = 20;
             numOfVehiclesWithoutInfo = 10;
@@ -67,7 +76,7 @@ classdef FireSimulation < handle
                 else
                     withInfo = false; % now create vehicles without information
                 end
-               
+
                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
 
                 id = id + 1;

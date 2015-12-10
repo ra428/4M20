@@ -3,54 +3,58 @@ classdef FireSimulation2 < handle
         function run(self)
             
             close all;
-            
-%             figure(1);
-            %             figure('units','normalized','outerposition',[0 0 1 1]);
+
+            % figure('units','normalized','outerposition',[0 0 1 1]); %  Full screen figure
             figure('Position',[100,100,1000,1000])
             hold on;
+            axis([1 10 1 10])
             
-            % axis([1 10 1 10])
-            axis([-5 15 -5 15])
-            
-            
-            firePosition1 = [7.5; 1.5];
-            firePosition2 = [9; 7];
-            firePosition3 = [2.5; 7.5];
-            firePosition4 = [9; 2.5];
+            % Fire Positions
+            firePosition{1} = [6; 3];
+            firePosition{2} = [9; 7];
+            firePosition{3} = [2.5; 7.5];
+            firePosition{4} = [9; 2.5];
 
-                        
-            door1 = Door(1,  false, 1.5, 5);
-            door2 = Door(2,  false, 3.5, 5);
-            door3 = Door(3,  false, 4, 5.5);
-            door4 = Door(4,  false, 4, 4.5);
-            door5 = Door(5,  false, 8, 1.5);
-            door6 = Door(6,  false, 9.5, 5);
-            door7 = Door(7,  false, 8, 9.5);
+            % Doors          
+            door = {};
+            door{1} = Door(1,  false, 1.5, 5);
+            door{2} = Door(2,  false, 3.5, 5);
+            door{3} = Door(3,  false, 4, 5.5);
+            door{4} = Door(4,  false, 4, 4.5);
+            door{5} = Door(5,  false, 8, 1.5);
+            door{6} = Door(6,  false, 9.5, 5);
+            door{7} = Door(7,  false, 8, 9.5);
             
             % Fire exits
-            exitDoor1 = Door(8, true, 2, 10);
-            exitDoor2 = Door(9, true, 2, 1);
-            exitDoor3 = Door(10, true, 5,10);
+            exitDoor = {};
+            exitDoor{1} = Door(8, true, 2, 10);
+            exitDoor{2} = Door(9, true, 2, 1);
+            exitDoor{3} = Door(10, true, 5,10);
             masterExitDoor = Door(10, true, -1,-1);
             
-            % exit = Door(8, 2, 1);
-            % doors = [door1, door2, door3, door4, door5, door6, door7, exit]; % the last entry is always the exit
-            
+            % Assign all doors into 1 long array;
+            doors = [door{1}];
+            for i = 2:numel(door)
+                doors = [doors, door{i}];
+            end
+            for j = 1:numel(exitDoor)
+                doors = [doors, exitDoor{j}];
+            end
             % last entry is always the exit
-            doors = [door1, door2, door3, door4, door5, door6, door7, exitDoor1, exitDoor2,exitDoor3, masterExitDoor];
+            doors = [doors, masterExitDoor];
             
-            room1 = Room(1, [1,5], [4,5], [1,1], [4,1], [door1, door2, door4, exitDoor2], []);
-
-            room2 = Room(2, [4, 5], [8, 5], [4, 1], [8, 1], [door4, door5], firePosition1);
-            room3 = Room(3, [8,5], [10,5], [8,1], [10,1], [door5, door6], []);
-            room4 = Room(4, [8,10], [10,10], [8,5], [10,5], [door6, door7], firePosition2);
-            room5 = Room(5, [4,10], [8,10], [4,5], [8,5], [door3, door7, exitDoor3], []);
-            room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door1, door2, door3, exitDoor1], firePosition3);
-            masterExitRoom = Room(7, [-1 -1 ],[-1 -1],[-1 -1],[-1 -1], [exitDoor1, exitDoor2, exitDoor3, masterExitDoor], []);
+            
+            room1 = Room(1, [1,5], [4,5], [1,1], [4,1], [door{1}, door{2}, door{4}, exitDoor{2}], []);
+            room2 = Room(2, [4, 5], [8, 5], [4, 1], [8, 1], [door{4}, door{5}], firePosition{1});
+            room3 = Room(3, [8,5], [10,5], [8,1], [10,1], [door{5}, door{6}], []);
+            room4 = Room(4, [8,10], [10,10], [8,5], [10,5], [door{6}, door{7}], firePosition{2});
+            room5 = Room(5, [4,10], [8,10], [4,5], [8,5], [door{3}, door{7}, exitDoor{3}], []);
+            room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door{1}, door{2}, door{3}, exitDoor{1}], firePosition{3});
+            masterExitRoom = Room(7, [-1 -1 ],[-1 -1],[-1 -1],[-1 -1], [exitDoor{1}, exitDoor{2}, exitDoor{3}, masterExitDoor], []);
                         
             rooms = [room1, room2, room3, room4, room5, room6];
                        
-            vehicles = [];
+            %             vehicles = [];
             
             %             id = 1;
             %             for i = 1:1
@@ -83,41 +87,32 @@ classdef FireSimulation2 < handle
             %                 id = id + 1;
             %             end
             
-            id = 1;
-            
-            numOfVehicles = 20;
-            colours = hsv(numOfVehicles);
-            for i = 1:20
+            % Create an array of vehicles
+            vehicles = [];
+            id =1;
+            numOfVehiclesWithInfo = 20;
+            numOfVehiclesWithoutInfo = 10;
+            colours = hsv(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo);
+            for i = 1:(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo)
                 initialX = rand(1, 1) * 9 + 1;
                 initialY = rand(1, 1) * 9 + 1;
                 initialBearing = rand(1, 1) * 2 * pi;
                 
-                if (i < 10)
+                % Create vehicles with information first
+                if (i <= numOfVehiclesWithInfo)
                     withInfo = true;
                 else
-                    withInfo = false;
+                    withInfo = false; % now create vehicles without information
                 end
-               
+
                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
 
                 id = id + 1;
             end
             
-            
-            
-            %
-            %             id = 1;
-            %             for i = 1:5
-            %                 initialX = 5 + 2 * rand(1,1);
-            %                 initialY = 2 + 2 * rand(1,1);
-            %                 initialBearing = rand(1, 1) * 2 * pi;
-            %
-            %                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors)];
-            %                 id = id + 1;
-            %             end
-            
             drawRooms(rooms, doors);
             
+            % Vehicles moving 
             numOfSteps = 0;
             while (~self.allVehiclesDone(vehicles))
                 for i = 1:numel(vehicles)
@@ -129,11 +124,13 @@ classdef FireSimulation2 < handle
                 end
                 
                 drawnow;
-                pause(0.03);
+%                 pause(0.03); % If drawing is too quick. Usually it is not
+%                 with large numbers of vehicles and rooms
                 numOfSteps = numOfSteps + 1;
                 
             end
-            numOfSteps
+            numOfSteps % Output number of steps taken for all vehicles to exit the building or die
+            survivalPercentage = self.getSurvivalPercentage(vehicles)
         end
         
         function allVehiclesDone = allVehiclesDone(self, vehicles)
@@ -147,6 +144,18 @@ classdef FireSimulation2 < handle
                 end
             end
             allVehiclesDone = true;
+        end
+        
+        function survivalPercentage = getSurvivalPercentage(self, vehicles)
+            % returns percentage of the population that escape the building
+            numOfVehiclesSurvived = 0;
+            for i = 1:numel(vehicles)
+                if (vehicles(i).hasExited)
+                    numOfVehiclesSurvived = numOfVehiclesSurvived + 1;
+                end
+            end
+            
+            survivalPercentage = 100*numOfVehiclesSurvived/numel(vehicles);
         end
     end
     
