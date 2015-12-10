@@ -49,9 +49,14 @@ classdef FireSimulation < handle
             room{4} = Room(4, [8,10], [10,10], [8,5], [10,5], [door{6}, door{7}], firePosition{2});
             room{5} = Room(5, [4,10], [8,10], [4,5], [8,5], [door{3}, door{7}], []);
             room{6} = Room(6, [1,10], [4,10], [1,5], [4,5], [door{1}, door{2}, door{3}], firePosition{3});
-            masterExitRoom = Room(7, [-1 -1 ],[-1 -1],[-1 -1],[-1 -1], [exitDoor{1}, masterExitDoor], []);
-            % note how the masterExitRoom is not known to the vehicles!, it
-            % is only used for the recursion?
+            
+            
+            % Master Exit Room from which the costing recursion starts
+            exitDoors = [];
+            for i = 1:numel(exitDoor)
+                exitDoors = [exitDoors, exitDoor{i}];
+            end
+            masterExitRoom = Room(999, [-1 -1 ],[-1 -1],[-1 -1],[-1 -1], [exitDoors,masterExitDoor], []);
 
             % Assign all rooms into one long array
             rooms = [room{1}];

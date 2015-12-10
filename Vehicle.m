@@ -70,8 +70,8 @@ classdef Vehicle < handle
             % set the speed and risk taking factor randomly
             obj.speed = 0.5 + 1*rand(1,1);
 
-            obj.fearFactor =  1+0.25*randn(1,1);
-
+%             obj.fearFactor =  1+0.25*randn(1,1);
+            obj.fearFactor = 30;
 
             obj.rooms = rooms;
             obj.room = obj.getRoom(rooms);
@@ -144,7 +144,6 @@ classdef Vehicle < handle
             distance = [norm(self.positionLeftSensor - positionDoor), norm(self.positionRightSensor - positionDoor)];
         end
 
-
         function faceDoor(self, positionDoor)
             angle = self.getAngleToDoor(positionDoor);
             if (angle > 0)
@@ -159,8 +158,7 @@ classdef Vehicle < handle
                 end
             end
         end
-        
-
+   
         function nextStep(self, vehicles)
             % vehicles is all the vehicles on the map
             if (~self.hasExited)
@@ -301,7 +299,6 @@ classdef Vehicle < handle
                         self.roomsWithFire = allRoomsWithFire;
                                                
                         % update the costs of the all the doors on the map
-                        %                         self.updateCosts(lastDoor);
                         self.initialiseCosts();
                         
                         % change the target
@@ -337,14 +334,6 @@ classdef Vehicle < handle
                             end
                         end
                     end
-%                 else
-%                     % it has reached the exit
-%                     self.hasExited = true;
-%                     % move it to a far away place so it does not repel other
-%                     % vehicles trying to go to the exit
-%                     self.updatePosition(1000, 1000);
-%                     
-%                 end
                 end
             end
         end
@@ -380,8 +369,7 @@ classdef Vehicle < handle
                 end
             end
         end
-
-         
+  
         function initialiseCosts(self)
             
             % initialise all door cost to an arbitrary high value
@@ -396,7 +384,7 @@ classdef Vehicle < handle
             % identify the exits and set their costs to an arbitrary low value
             for i = 1:numel(self.doors)
                 if (self.doors(i).isExit == true)
-                    self.costs(self.doors(i).id) = 1;
+                    self.costs(self.doors(i).id) = -10;
                 end
             end
             
@@ -465,7 +453,7 @@ classdef Vehicle < handle
                     end
                 end
 
-if (self.withInfo)
+                if (self.withInfo)
                     % different set cost mechanisms for robot depending on
                     % if it knows the layout of the room
                     for i = 1:numel(doors)
@@ -488,11 +476,10 @@ if (self.withInfo)
                         end
                     end
                     
-                else
+                else % Costing mechanism for vehicles without information
                     for i = 1:numel(doors)
                         if (doors(i).id ~= referenceDoor.id)
-                            % check if cost has been set, reset cost if cost is
-                            % lower
+                            % check if cost has been set, reset cost if cost is lower
                             
                             if (any(self.roomsSeen == room.id))
                                 % it has seen the room, it has knowledge of the
@@ -533,7 +520,6 @@ if (self.withInfo)
                 end
             end
         end
-                 
 
         function target = getTarget(self, room)
             % Returns the door with the lowest cost in the room
@@ -683,17 +669,18 @@ if (self.withInfo)
             end
         end
         
-        function closestDoor = getClosestDoor(self)
-            closestDoor = self.room.doors(1);
-            shortestDistance = 1000; % arbitrary
-            for i = 1: numel(self.room.doors)
-                distance = norm([self.room.doors(i).x; self.room.doors(i).y] - self.position(1:2));
-                if  (distance < shortestDistance)
-                    shortestDistance = distance;
-                    closestDoor = self.room.doors(i);
-                end
-            end
-        end
+        % is function even used?
+%         function closestDoor = getClosestDoor(self)
+%             closestDoor = self.room.doors(1);
+%             shortestDistance = 1000; % arbitrary
+%             for i = 1: numel(self.room.doors)
+%                 distance = norm([self.room.doors(i).x; self.room.doors(i).y] - self.position(1:2));
+%                 if  (distance < shortestDistance)
+%                     shortestDistance = distance;
+%                     closestDoor = self.room.doors(i);
+%                 end
+%             end
+%         end
         
         function updateHealth(self)
             if (self.room.hasFire())
@@ -706,26 +693,25 @@ if (self.withInfo)
             end
             
         end
-        
-        
+    
         % is function even used?
-        function isRoomAjacentRoom = isRoomAdjacentRoom(self, otherRoom)
-            % check if otherRoom is adjacent to the room the vehicle is
-            % currently in
-            isRoomAjacentRoom = false;
-            
-            doorIds = [];
-            for i = 1: numel(self.room.doors)
-                doorIds = [doorIds, self.room.doors(i).id];
-            end
-            
-            for j = 1: numel(otherRoom.doors)
-                if (any(doorIds == otherRoom.doors(j).id))
-                    isRoomAdjacentRoom = true;
-                end
-            end
-            
-        end
+%         function isRoomAjacentRoom = isRoomAdjacentRoom(self, otherRoom)
+%             % check if otherRoom is adjacent to the room the vehicle is
+%             % currently in
+%             isRoomAjacentRoom = false;
+%             
+%             doorIds = [];
+%             for i = 1: numel(self.room.doors)
+%                 doorIds = [doorIds, self.room.doors(i).id];
+%             end
+%             
+%             for j = 1: numel(otherRoom.doors)
+%                 if (any(doorIds == otherRoom.doors(j).id))
+%                     isRoomAdjacentRoom = true;
+%                 end
+%             end
+%             
+%         end
         
 %         function initialiseCosts(self)
 %             

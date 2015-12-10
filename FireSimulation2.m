@@ -51,7 +51,15 @@ classdef FireSimulation2 < handle
             room5 = Room(5, [4,10], [8,10], [4,5], [8,5], [door{3}, door{7}, exitDoor{3}], []);
             %             room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door{1}, door{2}, door{3}, exitDoor{1}], firePosition{3});
             room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door{1}, door{2}, door{3}, exitDoor{1}], []);
-            masterExitRoom = Room(7, [-1 -1 ],[-1 -1],[-1 -1],[-1 -1], [exitDoor{1}, exitDoor{2}, exitDoor{3}, masterExitDoor], []);
+            
+            % Master Exit Room from which the costing recursion starts
+            exitDoors = [];
+            for i = 1:numel(exitDoor)
+                exitDoors = [exitDoors, exitDoor{i}];
+            end
+            masterExitRoom = Room(999, [-1 -1 ],[-1 -1],[-1 -1],[-1 -1], [exitDoors,masterExitDoor], []);
+            
+%             masterExitRoom = Room(7, [-1 -1 ],[-1 -1],[-1 -1],[-1 -1], [exitDoor{1}, exitDoor{2}, exitDoor{3}, masterExitDoor], []);
             
             rooms = [room1, room2, room3, room4, room5, room6];
             
@@ -91,7 +99,7 @@ classdef FireSimulation2 < handle
             % Create an array of vehicles
             vehicles = [];
             id =1;
-            numOfVehiclesWithInfo = 0;
+            numOfVehiclesWithInfo = 2;
             numOfVehiclesWithoutInfo = 10;
             colours = hsv(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo);
             %             for i = 1:(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo)
@@ -111,10 +119,28 @@ classdef FireSimulation2 < handle
             %                 id = id + 1;
             %             end
             
-            % Vehicles in Room 3
+%             % Vehicles in Room 3
+%             for i = 1:(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo)
+%                 initialX = rand(1, 1) * 2 + 8;
+%                 initialY = rand(1, 1) * 2 + 1;
+%                 initialBearing = rand(1, 1) * 2 * pi;
+%                 
+%                 % Create vehicles with information first
+%                 if (i <= numOfVehiclesWithInfo)
+%                     withInfo = true;
+%                 else
+%                     withInfo = false; % now create vehicles without information
+%                 end
+%                 
+%                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
+%                 
+%                 id = id + 1;
+%             end
+            
+             % Vehicles in Room 1
             for i = 1:(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo)
-                initialX = rand(1, 1) * 2 + 8;
-                initialY = rand(1, 1) * 2 + 1;
+                initialX = rand(1, 1) * 2 + 4;
+                initialY = rand(1, 1) * 2 + 6;
                 initialBearing = rand(1, 1) * 2 * pi;
                 
                 % Create vehicles with information first
