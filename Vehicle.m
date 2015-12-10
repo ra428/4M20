@@ -194,12 +194,12 @@ classdef Vehicle < handle
                         else
                             distanceToFire = [1000;1000];
                         end
-                        
+                        % Change speed to travel to door
                         distanceToDoor = self.getDistanceToDoor([self.target.x; self.target.y]);
-                        
                         omegaLeftWheel = 10 * distanceToDoor(1) + 7 * distanceToFire(2);
                         omegaRightWheel = 10 * distanceToDoor(2) + 7 * distanceToFire(1);
                         
+                        % Change speed for separation
                         % add parameters to omegaLeftWheel and omegaRightWheel
                         % from nearby vehicles
                         vehiclesInFront = self.getVehiclesInFront(vehicles);
@@ -214,6 +214,7 @@ classdef Vehicle < handle
                             omegaRightWheel = omegaRightWheel + 5 * distanceToVehicle(1);
                         end
                         
+                        % Change direction when hitting wall
                         % add parameters to omegaLeftWheel and omegaRightWheel
                         % from nearby walls, also face the target if next to
                         % the wall
@@ -266,6 +267,14 @@ classdef Vehicle < handle
                             self.room = potentialRooms(1);
                         end
                         
+                        if (~self.withInfo)
+                            % update knowledge of the map
+                            if (~any(self.roomsSeen == self.room.id))
+                                self.roomsSeen = [self.roomsSeen, self.room.id];
+                            end
+                        end
+                        
+                        
                         % immediately check the room after going into a new one
                         % If room has a fire, update roomsWithFire
                         
@@ -302,13 +311,30 @@ classdef Vehicle < handle
                         self.faceDoor([self.target.x, self.target.y]);
                         
                         % now update other vehicles and force them to
-                        % rethink about the route
-                        for i  = 1: numel(vehiclesInRoom)
-                            vehiclesInRoom(i).roomsWithFire = allRoomsWithFire;
-                            %                             vehiclesInRoom(i).updateCosts(lastDoor);
-                            vehiclesInRoom(i).initialiseCosts();
-                            vehiclesInRoom(i).target = vehiclesInRoom(i).getTarget(self.room);
-                            vehiclesInRoom(i).faceDoor([vehiclesInRoom(i).target.x, vehiclesInRoom(i).target.y]);
+                        % rethink about the route, different mechanisms for
+                        % robot with or without knowledge of the layout of
+                        % the room
+                        
+                        if (self.withInfo)
+                            for i  = 1: numel(vehiclesInRoom)
+                                vehiclesInRoom(i).roomsWithFire = allRoomsWithFire;
+                                %                             vehiclesInRoom(i).updateCosts(lastDoor);
+                                vehiclesInRoom(i).initialiseCosts();
+                                vehiclesInRoom(i).target = vehiclesInRoom(i).getTarget(self.room);
+                                vehiclesInRoom(i).faceDoor([vehiclesInRoom(i).target.x, vehiclesInRoom(i).target.y]);
+                            end
+                        else
+                            if (lastRoom.hasFire())
+                                
+                                for i  = 1: numel(vehiclesInRoom)
+                                    if (~any(vehiclesInRoom(i).roomsWithFire==lastRoom.id))
+                                        vehiclesInRoom(i).roomsWithFire = [vehiclesInRoom(i).roomsWithFire, lastRoom.id];
+                                    end
+                                    vehiclesInRoom(i).initialiseCosts();
+                                    vehiclesInRoom(i).target = vehiclesInRoom(i).getTarget(self.room);
+                                    vehiclesInRoom(i).faceDoor([vehiclesInRoom(i).target.x, vehiclesInRoom(i).target.y]);
+                                end
+                            end
                         end
                     end
 %                 else
@@ -417,6 +443,7 @@ classdef Vehicle < handle
             if (room.id ~= self.room.id)
                 % it is not the room we are in
                 doors = room.doors;
+
                 
                 for i = 1:numel(doors)
                     if (doors(i).id ~= referenceDoor.id)
@@ -434,6 +461,61 @@ classdef Vehicle < handle
                         % to the same door
                         if (cost < self.costs(doors(i).id))
                             self.costs(doors(i).id) = cost;
+                        end
+                    end
+                end
+
+if (self.withInfo)
+                    % different set cost mechanisms for robot depending on
+                    % if it knows the layout of the room
+                    for i = 1:numel(doors)
+                        if (doors(i).id ~= referenceDoor.id)
+                            % check if cost has been set, reset cost if cost is
+                            % lower
+                            cost = self.costs(referenceDoor.id) + norm([doors(i).x, doors(i).y] - [referenceDoor.x, referenceDoor.y]);
+                            
+                            % check if robot has seen fire in this room
+                            if (any(self.roomsWithFire == room.id))
+                                %                             cost = cost + 30;
+                                cost = cost + 10 * self.fearFactor;
+                            end
+                            
+                            % take the lowest cost if there are multiple paths
+                            % to the same door
+                            if (cost < self.costs(doors(i).id))
+                                self.costs(doors(i).id) = cost;
+                            end
+                        end
+                    end
+                    
+                else
+                    for i = 1:numel(doors)
+                        if (doors(i).id ~= referenceDoor.id)
+                            % check if cost has been set, reset cost if cost is
+                            % lower
+                            
+                            if (any(self.roomsSeen == room.id))
+                                % it has seen the room, it has knowledge of the
+                                % room. update the cost just like a vehicle
+                                % which knows the map
+                                cost = self.costs(referenceDoor.id) + norm([doors(i).x, doors(i).y] - [referenceDoor.x, referenceDoor.y]);
+                                
+                            else
+                                % haven't seen the room
+                                cost = self.costs(referenceDoor.id);
+                            end
+                            
+                            % check if robot has seen fire in this room
+                            if (any(self.roomsWithFire == room.id))
+                                %                                cost = cost + 30;
+                                cost = cost + 10 * self.fearFactor;
+                            end
+                            
+                            % take the lowest cost if there are multiple paths
+                            % to the same door
+                            if (cost < self.costs(doors(i).id))
+                                self.costs(doors(i).id) = cost;
+                            end
                         end
                     end
                 end

@@ -3,7 +3,7 @@ classdef FireSimulation2 < handle
         function run(self)
             
             close all;
-
+            
             % figure('units','normalized','outerposition',[0 0 1 1]); %  Full screen figure
             figure('Position',[100,100,1000,1000])
             hold on;
@@ -12,10 +12,10 @@ classdef FireSimulation2 < handle
             % Fire Positions
             firePosition{1} = [6; 3];
             firePosition{2} = [9; 7];
-            firePosition{3} = [2.5; 7.5];
+            %             firePosition{3} = [2.5; 7.5];
             firePosition{4} = [9; 2.5];
-
-            % Doors          
+            
+            % Doors
             door = {};
             door{1} = Door(1,  false, 1.5, 5);
             door{2} = Door(2,  false, 3.5, 5);
@@ -49,11 +49,12 @@ classdef FireSimulation2 < handle
             room3 = Room(3, [8,5], [10,5], [8,1], [10,1], [door{5}, door{6}], []);
             room4 = Room(4, [8,10], [10,10], [8,5], [10,5], [door{6}, door{7}], firePosition{2});
             room5 = Room(5, [4,10], [8,10], [4,5], [8,5], [door{3}, door{7}, exitDoor{3}], []);
-            room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door{1}, door{2}, door{3}, exitDoor{1}], firePosition{3});
+            %             room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door{1}, door{2}, door{3}, exitDoor{1}], firePosition{3});
+            room6 = Room(6, [1,10], [4,10], [1,5], [4,5], [door{1}, door{2}, door{3}, exitDoor{1}], []);
             masterExitRoom = Room(7, [-1 -1 ],[-1 -1],[-1 -1],[-1 -1], [exitDoor{1}, exitDoor{2}, exitDoor{3}, masterExitDoor], []);
-                        
+            
             rooms = [room1, room2, room3, room4, room5, room6];
-                       
+            
             %             vehicles = [];
             
             %             id = 1;
@@ -90,12 +91,30 @@ classdef FireSimulation2 < handle
             % Create an array of vehicles
             vehicles = [];
             id =1;
-            numOfVehiclesWithInfo = 20;
+            numOfVehiclesWithInfo = 0;
             numOfVehiclesWithoutInfo = 10;
             colours = hsv(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo);
+            %             for i = 1:(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo)
+            %                 initialX = rand(1, 1) * 9 + 1;
+            %                 initialY = rand(1, 1) * 9 + 1;
+            %                 initialBearing = rand(1, 1) * 2 * pi;
+            %
+            %                 % Create vehicles with information first
+            %                 if (i <= numOfVehiclesWithInfo)
+            %                     withInfo = true;
+            %                 else
+            %                     withInfo = false; % now create vehicles without information
+            %                 end
+            %
+            %                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
+            %
+            %                 id = id + 1;
+            %             end
+            
+            % Vehicles in Room 3
             for i = 1:(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo)
-                initialX = rand(1, 1) * 9 + 1;
-                initialY = rand(1, 1) * 9 + 1;
+                initialX = rand(1, 1) * 2 + 8;
+                initialY = rand(1, 1) * 2 + 1;
                 initialBearing = rand(1, 1) * 2 * pi;
                 
                 % Create vehicles with information first
@@ -104,15 +123,15 @@ classdef FireSimulation2 < handle
                 else
                     withInfo = false; % now create vehicles without information
                 end
-
+                
                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
-
+                
                 id = id + 1;
             end
             
             drawRooms(rooms, doors);
             
-            % Vehicles moving 
+            % Vehicles moving
             numOfSteps = 0;
             while (~self.allVehiclesDone(vehicles))
                 for i = 1:numel(vehicles)
@@ -124,8 +143,8 @@ classdef FireSimulation2 < handle
                 end
                 
                 drawnow;
-%                 pause(0.03); % If drawing is too quick. Usually it is not
-%                 with large numbers of vehicles and rooms
+                %                 pause(0.03); % If drawing is too quick. Usually it is not
+                %                 with large numbers of vehicles and rooms
                 numOfSteps = numOfSteps + 1;
                 
             end

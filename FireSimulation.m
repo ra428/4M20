@@ -62,12 +62,30 @@ classdef FireSimulation < handle
             % Create an array of vehicles
             vehicles = [];
             id =1;
-            numOfVehiclesWithInfo = 20;
+            numOfVehiclesWithInfo = 0;
             numOfVehiclesWithoutInfo = 10;
             colours = hsv(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo);
+%             for i = 1:(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo)
+%                 initialX = rand(1, 1) * 9 + 1;
+%                 initialY = rand(1, 1) * 9 + 1;
+%                 initialBearing = rand(1, 1) * 2 * pi;
+%                 
+%                 % Create vehicles with information first
+%                 if (i <= numOfVehiclesWithInfo)
+%                     withInfo = true;
+%                 else
+%                     withInfo = false; % now create vehicles without information
+%                 end
+% 
+%                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
+% 
+%                 id = id + 1;
+%             end
+
+            % Vehicles in Room 3
             for i = 1:(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo)
-                initialX = rand(1, 1) * 9 + 1;
-                initialY = rand(1, 1) * 9 + 1;
+                initialX = rand(1, 1) * 2 + 8;
+                initialY = rand(1, 1) * 2 + 1;
                 initialBearing = rand(1, 1) * 2 * pi;
                 
                 % Create vehicles with information first
