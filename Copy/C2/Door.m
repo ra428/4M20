@@ -4,17 +4,15 @@ classdef Door < handle
         x;
         y;
         orientation;
-        rooms; 
-        isExit; % True or False
+        rooms;         
     end
     
     methods
-        function obj = Door(id, isExit,  x, y)
+        function obj = Door(id, x, y)
             obj.id = id;
             obj.x = x;
             obj.y = y;
             obj.rooms = [];
-            obj.isExit = isExit; % True or False
         end
         
         function addRoom(self, room)
@@ -24,18 +22,14 @@ classdef Door < handle
         
         function draw(self)
             
-            if(self.isExit)
-                lineHandle = line(0,0,'color','g','LineWidth',2);   
-            else
-                lineHandle = line(0,0,'color','c','LineWidth',2);               
-            end
-                        
+            lineHandle = line(0,0,'color','c','LineWidth',2);   %left side of vehicle
+            
             if (self.orientation == 0) 
                 % vertical
-                set(lineHandle,'xdata',[self.x self.x],'ydata',[self.y - 0.1 self.y + 0.1]);
+                set(lineHandle,'xdata',[self.x self.x],'ydata',[self.y - 0.5 self.y + 0.5]);
             else 
                 % horizontal
-                set(lineHandle,'xdata',[self.x - 0.1 self.x + 0.1],'ydata',[self.y self.y]);
+                set(lineHandle,'xdata',[self.x - 0.5 self.x + 0.5],'ydata',[self.y self.y]);
             end
             
             drawnow;
