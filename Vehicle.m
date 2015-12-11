@@ -72,8 +72,8 @@ classdef Vehicle < handle
             % set the speed and risk taking factor randomly
             obj.speed = 0.5 + 1*rand(1,1);
             
-            obj.fearFactor =  1+0.25*randn(1,1);
-            %             obj.fearFactor = 30;
+%             obj.fearFactor =  1+0.25*randn(1,1);
+                        obj.fearFactor = 30;
             
             obj.rooms = rooms;
             obj.room = obj.getRoom(rooms);
