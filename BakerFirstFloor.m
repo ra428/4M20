@@ -120,7 +120,7 @@ classdef BakerFirstFloor < handle
             room{25} = Room(25, [67 55]/sf, [80 55]/sf, [67 45]/sf, [80 45]/sf, [door{36}, door{37}], []);                   % IT Help Desk, IE1-32
             room{26} = Room(26, [45 57]/sf, [65 57]/sf, [45 55]/sf, [65 55]/sf, [door{38}, door{39}], []);                   % Corridor to workshops
             room{27} = Room(27, [50 65]/sf, [60 65]/sf, [50 57]/sf, [60 57]/sf, [door{39}], []);                             % IE1-35, Tim Love's room
-            room{28}= Room(28, [80 65]/sf, [105 65]/sf, [80 45]/sf, [105 45]/sf, [door{34}, door{37}],[]);                   % Print room, IE1-41
+            room{28}= Room(28, [80 65]/sf, [90 65]/sf, [80 45]/sf, [90 45]/sf, [door{34}, door{37}],[]);                   % Print room, IE1-41
             
 
             % Master Exit Room from which the costing recursion starts
@@ -216,6 +216,7 @@ classdef BakerFirstFloor < handle
                 
             end
             numOfSteps
+            survivalPercentage = self.getSurvivalPercentage(vehicles)
         end
         
         function allVehiclesDone = allVehiclesDone(self, vehicles)
@@ -230,6 +231,19 @@ classdef BakerFirstFloor < handle
             end
             allVehiclesDone = true;
         end
+        
+        function survivalPercentage = getSurvivalPercentage(self, vehicles)
+            % returns percentage of the population that escape the building
+            numOfVehiclesSurvived = 0;
+            for i = 1:numel(vehicles)
+                if (vehicles(i).hasExited)
+                    numOfVehiclesSurvived = numOfVehiclesSurvived + 1;
+                end
+            end
+            
+            survivalPercentage = 100*numOfVehiclesSurvived/numel(vehicles);
+        end
+        
     end
     
 end
