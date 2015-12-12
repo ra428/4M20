@@ -72,8 +72,10 @@ classdef Vehicle < handle
             % set the speed and risk taking factor randomly
             obj.speed = 0.5 + 1*rand(1,1);
             
-%             obj.fearFactor =  1+0.25*randn(1,1);
-                        obj.fearFactor = 30;
+            % cost increments by 10*fearFactor when encountering fire
+            obj.fearFactor = rand(1,1)*0.4 + 2.8; 
+%             obj.fearFactor =  1+0.25*randn(1,1); 
+%             obj.fearFactor = 30;
             
             obj.rooms = rooms;
             obj.room = obj.getRoom(rooms);
@@ -397,16 +399,14 @@ classdef Vehicle < handle
 %             self.costs(exit.id) = 1;
             
             rooms = exit.rooms;
-            
-             % identify the exits and set their costs to an arbitrary low value
-             for i = 1:numel(self.doors)
+
+            % identify the exits and set their costs to an arbitrary low value
+            for i = 1:numel(self.doors)
                 if (self.doors(i).isExit == true)
                     self.costs(self.doors(i).id) = 1;
                 end
             end
-            
-            rooms = exit.rooms;
-            
+                        
             for i = 1:numel(rooms)
                 self.setCostsForRoom(rooms(i), exit, checkedRoomIds);
             end
@@ -429,7 +429,7 @@ classdef Vehicle < handle
                             % Update cost if door is not the last door AND
                             % the angle between door and fire is smaller than
                             % 90 degrees eg: door is behind the fire.
-                            %                             self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30;
+                            % self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30;
                             self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 10 * self.fearFactor;
                         end
                     end
@@ -438,8 +438,10 @@ classdef Vehicle < handle
             
             % update the cost with the distance from all the doors to the
             % current location
-            for i = 1: numel(self.room.doors)
-                self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + norm(self.position(1:2) - [self.room.doors(i).x; self.room.doors(i).y]);
+            for i = 1:numel(self.room.doors)
+                if (self.room.doors(i).isExit == false)
+                    self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + norm(self.position(1:2) - [self.room.doors(i).x; self.room.doors(i).y]);
+                end
             end
         end
         
@@ -492,7 +494,7 @@ classdef Vehicle < handle
                             
                             % check if robot has seen fire in this room
                             if (any(self.roomsWithFire == room.id))
-                                %                                cost = cost + 30;
+                                % cost = cost + 30;
                                 cost = cost + 10 * self.fearFactor;
                             end
                             
@@ -530,9 +532,8 @@ classdef Vehicle < handle
                     % move it to a far away place so it does not repel other
                     % vehicles trying to go to the exit
                     self.updatePosition(1000, 1000);
-                else
-                    
-                    %                     if (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.3)
+                else                    
+                    % if (norm(self.position(1:2) - [self.doors(end).x; self.doors(end).y]) > 0.3)
                     % only proceed calculation if it has not reached the exit
                     
                     if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.05))
@@ -552,7 +553,7 @@ classdef Vehicle < handle
                         if (self.room.hasFire())
                             distanceToFire = self.getDistanceToFire(self.room.firePositions);
                         else
-                            distanceToFire = [1000;1000];
+                            distanceToFire = [10000;10000];
                         end
                         
                         % Change speed to travel to door
@@ -682,7 +683,7 @@ classdef Vehicle < handle
                         if (self.withInfo)
                             for i  = 1: numel(vehiclesInRoom)
                                 vehiclesInRoom(i).roomsWithFire = allRoomsWithFire;
-                                %                             vehiclesInRoom(i).updateCosts(lastDoor);
+                                % vehiclesInRoom(i).updateCosts(lastDoor);
                                 vehiclesInRoom(i).initialiseCosts();
                                 vehiclesInRoom(i).target = vehiclesInRoom(i).getTarget(self.room);
                                 vehiclesInRoom(i).faceDoor([vehiclesInRoom(i).target.x, vehiclesInRoom(i).target.y]);
@@ -701,18 +702,14 @@ classdef Vehicle < handle
                             end
                         end
                     end
-                    %                 else
-                    % it has reached the exit
-                    %                     self.hasExited = true;
-                    % move it to a far away place so it does not repel other
-                    % vehicles trying to go to the exit
-                    %                     self.updatePosition(1000, 1000);
-                    
+%                 else
+%                     % it has reached the exit
+%                     self.hasExited = true;
+%                     % move it to a far away place so it does not repel other
+%                     % vehicles trying to go to the exit
+%                     self.updatePosition(1000, 1000);                    
                 end
-                
             end
         end
-        
-        
     end
 end

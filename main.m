@@ -1,5 +1,5 @@
-clear all;
-
+clear;
+close all;
 
 
 % fireSimulation = FireSimulation();

@@ -140,11 +140,13 @@ classdef BakerFirstFloor < handle
             id = 1;
             
             colours = hsv(50);
-            withInfo = true;
+            withInfo = false;
             % People in South Wing
             for i = 1:10
-                initialX = rand(1, 1) * 2.5 + 4/sf;
-                initialY = rand(1, 1) * 7 + 4/sf;
+%                 initialX = rand(1, 1) * 2.5 + 4/sf;
+%                 initialY = rand(1, 1) * 7 + 4/sf;
+                initialX = rand(1,1)*4.8 + 0.1;
+                initialY = rand(1,1)*7.55 + 0.1;
                 initialBearing = rand(1, 1) * 2 * pi;
                 
                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
@@ -153,16 +155,20 @@ classdef BakerFirstFloor < handle
             
             % People in Library
             for i = 1:5
-                initialX = (rand(1, 1) * 2 + 32/sf);
-                initialY = (rand(1, 1) * 2 + 20/sf);
+%                 initialX = (rand(1, 1) * 2 + 32/sf);
+%                 initialY = (rand(1, 1) * 2 + 20/sf);
+                initialX = rand(1,1)*4.8 + 6.1;
+                initialY = rand(1,1)*3.55 + 0.1;
                 initialBearing = rand(1, 1) * 2 * pi;
                 
                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
                 id = id + 1;
             end
             for i = 1:5
-                initialX = (rand(1, 1) * 2 + 28/sf);
-                initialY = (rand(1, 1) * 2 + 8/sf);
+%                 initialX = (rand(1, 1) * 2 + 28/sf);
+%                 initialY = (rand(1, 1) * 2 + 8/sf);
+                initialX = rand(1,1)*2.8 + 8.1;
+                initialY = rand(1,1)*3.05 + 3.85;          
                 initialBearing = rand(1, 1) * 2 * pi;
                 
                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
@@ -170,8 +176,10 @@ classdef BakerFirstFloor < handle
             end
             % People in LR6
             for i = 1:10
-                initialX = (rand(1, 1) * 2 + 52/sf);
-                initialY = (rand(1, 1) * 2 + 4/sf);
+%                 initialX = (rand(1, 1) * 2 + 52/sf);
+%                 initialY = (rand(1, 1) * 2 + 4/sf);
+                initialX = rand(1,1)*4.8 + 11.1;
+                initialY = rand(1,1)*2.8 + 0.1;
                 initialBearing = rand(1, 1) * 2 * pi;
                 
                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
@@ -180,8 +188,10 @@ classdef BakerFirstFloor < handle
             
             % People in LR5
             for i = 1:10
-                initialX = (rand(1, 1) * 2 + 80/sf);
-                initialY = (rand(1, 1) * 2 + 4/sf);
+%                 initialX = (rand(1, 1) * 2 + 80/sf);
+%                 initialY = (rand(1, 1) * 2 + 4/sf);
+                initialX = rand(1,1)*2.8 + 18.65;
+                initialY = rand(1,1)*3.55 + 0.1;               
                 initialBearing = rand(1, 1) * 2 * pi;
                 
                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
@@ -190,8 +200,10 @@ classdef BakerFirstFloor < handle
             
             % People in DPO
             for i = 1:10
-                initialX = (rand(1, 1) * 2 + 76/sf);
-                initialY = (rand(1, 1) * 2 + 32/sf);
+%                 initialX = (rand(1, 1) * 2 + 76/sf);
+%                 initialY = (rand(1, 1) * 2 + 32/sf);
+                initialX = rand(1,1)*5.3 + 16.35;
+                initialY = rand(1,1)*7.3 + 3.85;
                 initialBearing = rand(1, 1) * 2 * pi;
                 
                 vehicles = [vehicles, Vehicle(id, [initialX; initialY; initialBearing], rooms, doors, withInfo, colours(id, :))];
