@@ -681,6 +681,8 @@ classdef Vehicle < handle
                         % the room
                         
                         if (self.withInfo)
+                            % if it knows the layout, it can tell others
+                            % all the rooms with fire
                             for i  = 1: numel(vehiclesInRoom)
                                 vehiclesInRoom(i).roomsWithFire = allRoomsWithFire;
                                 % vehiclesInRoom(i).updateCosts(lastDoor);
@@ -690,6 +692,9 @@ classdef Vehicle < handle
                             end
                         else
                             if (lastRoom.hasFire())
+                                % as it does not know the layout, it can
+                                % only tell others if the last room has
+                                % fire
                                 
                                 for i  = 1: numel(vehiclesInRoom)
                                     if (~any(vehiclesInRoom(i).roomsWithFire==lastRoom.id))
