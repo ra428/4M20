@@ -73,9 +73,9 @@ classdef FireSimulation4 < handle
             vehicles = [];
 
             id = 1;
-            numOfVehiclesWithInfo = 5;
+            numOfVehiclesWithInfo = 2;
             numOfVehiclesWithoutInfo = 0;
-            colours = hsv(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo);
+            colours = hsv(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo);            
 
             % Vehicles in Room 3
             for i = 1:(numOfVehiclesWithInfo + numOfVehiclesWithoutInfo)
@@ -123,6 +123,22 @@ classdef FireSimulation4 < handle
             end
             numOfSteps % Output number of steps taken for all vehicles to exit the building or die
             survivalPercentage = self.getSurvivalPercentage(vehicles)
+            
+            % get handle for the vehicle history lines plotted
+            historyLineHandles = [];
+            for i = 1: numel(vehicles)
+                historyLineHandle = plot(vehicles(i).positionHistory(1, :), vehicles(i).positionHistory(2, :), 'color', vehicles(i).historyPlotColour);
+                historyLineHandles = [historyLineHandles, historyLineHandle];
+            end
+            
+            
+            % plot legend
+            legendLabels = [];
+            for i = 1: numel(vehicles)
+               legendLabels = [legendLabels; strcat('Vehicle', int2str(vehicles(i).id))];
+            end
+            myLegend = legend(historyLineHandles, legendLabels);
+            
         end
         
         function allVehiclesDone = allVehiclesDone(self, vehicles)
@@ -149,6 +165,7 @@ classdef FireSimulation4 < handle
             
             survivalPercentage = 100*numOfVehiclesSurvived/numel(vehicles);
         end
+        
     end
     
 end
