@@ -1,5 +1,6 @@
 # 4M20
 Simulating crowd evacuation during fire. Based on Braitenberg Vehciles 2a and 2b.
+
 run the main.m file to carry out different simulations
 
 Each vehicle displays:
