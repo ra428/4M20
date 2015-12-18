@@ -9,7 +9,7 @@ classdef BakerFirstFloor < handle
             sf = 4; % scaling factor
             axis([0 90/sf -1 80/sf])
             
-            %             firePosition1 = [7.5; 1.5];
+            firePosition1 = [7.5; 1.5];
             %             firePosition2 = [9; 7];
             %             firePosition3 = [2.5; 7.5];
             %             firePosition4 = [9; 2.5];
@@ -87,7 +87,9 @@ classdef BakerFirstFloor < handle
             % Baker South Wing
             room{1 } = Room(1 , [0 9]/sf,   [19 9]/sf,  [0 0]/sf,   [19 0]/sf,  [door{2}, door{3}, door{4}] ,[] );           % Language unit 1st part, BS1_05-1
             room{2 } = Room(2 , [19 9]/sf,  [22 9]/sf,  [19 7]/sf,  [22 7 ]/sf, [door{2}, door{1}, door{5}],[] );            % Corridor next to stairs, BS1-14
-            room{3 } = Room(3 , [22 9]/sf,  [24 9]/sf,  [22 7]/sf,  [24 7]/sf,  [door{1}, door{13}, exitDoor{1}] ,[] );      % Stair corridor, BS1-05
+%             room{3 } = Room(3 , [22 9]/sf,  [24 9]/sf,  [22 7]/sf,  [24 7]/sf,  [door{1}, door{13}, exitDoor{1}] ,[] );      % Stair corridor, BS1-05
+            room{3 } = Room(3 , [22 9]/sf,  [24 9]/sf,  [22 7]/sf,  [24 7]/sf,  [door{1}, exitDoor{1}] ,[] );      % Stair corridor, BS1-05
+           
             room{4 } = Room(4 , [0 20]/sf,  [12 20]/sf, [0 9]/sf,   [12 9]/sf,  [door{3}] ,[]);                              % Language Unit 2nd part, BS1-05_2
             room{5 } = Room(5 , [12 20]/sf, [19 20]/sf, [12 9]/sf,  [19 9]/sf,  [door{4}, door{6}] ,[]);                     % Meeting room, Baker South wing, BS1-06
             room{6 } = Room(6 , [19 20]/sf, [20 20]/sf, [19 9]/sf,  [20 9]/sf,  [door{5}, door{6}, door{7}] ,[]);            % Corridor alongside Language Unit, BS1-15_1
@@ -99,8 +101,10 @@ classdef BakerFirstFloor < handle
             room{12} = Room(12, [22 15]/sf, [24 15]/sf, [22 9]/sf,  [24 9]/sf,  [door{12}], []);                             % Mens toilet
             
             % Baker Centre Wing
-            room{13} = Room(13, [24 15]/sf , [44 15]/sf, [24 0]/sf, [44 0]/sf, [door{13}, door{14}, door{15}, door{16},...
-                door{17}, door{18}, door{19}, door{20}, door{21}, door{22}, door{23},door{24}, door{25}] ,[]);               % Library, part 1, BE1-10_1
+%             room{13} = Room(13, [24 15]/sf , [44 15]/sf, [24 0]/sf, [44 0]/sf, [door{13}, door{14}, door{15}, door{16},...
+%                 door{17}, door{18}, door{19}, door{20}, door{21}, door{22}, door{23},door{24}, door{25}] ,[]);               % Library, part 1, BE1-10_1
+            room{13} = Room(13, [24 15]/sf , [44 15]/sf, [24 0]/sf, [44 0]/sf, [door{14}, door{15}, door{16},...
+                door{17}, door{18}, door{19}, door{20}, door{21}, door{22}, door{23},door{24}, door{25}] ,[]);
             room{14} = Room(14, [32 28]/sf, [44 28]/sf, [32 15]/sf, [44 15]/sf, [door{14}, door{15}, door{16},...
                 door{17}, door{18}, door{19}, door{20}, door{21}, door{22}, door{23},door{24}], []);                         % Library, part 2, BE1-10_2
             room{15} = Room(15, [44 12]/sf, [64 12]/sf, [44 0]/sf, [64 0]/sf, [door{27}], []);                               % LR 6, BE1-16
@@ -140,7 +144,7 @@ classdef BakerFirstFloor < handle
             id = 1;
             
             colours = hsv(50);
-            withInfo = false;
+            withInfo = true;
             % People in South Wing
             for i = 1:10
 %                 initialX = rand(1, 1) * 2.5 + 4/sf;
@@ -223,12 +227,12 @@ classdef BakerFirstFloor < handle
                 end
                 
                 drawnow;
-                pause(0.03);
+%                 pause(0.03);
                 numOfSteps = numOfSteps + 1;
                 
             end
             numOfSteps
-            survivalPercentage = self.getSurvivalPercentage(vehicles)
+%             survivalPercentage = self.getSurvivalPercentage(vehicles)
         end
         
         function allVehiclesDone = allVehiclesDone(self, vehicles)
