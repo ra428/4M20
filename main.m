@@ -9,7 +9,7 @@ close all;
 % fireSimulation = FireSimulation5(); % run evacuation simulation in baker building 10 times (no fire), and compute the average, with door between library and language unit
 % fireSimulation = FireSimulation6(); % run evacuation simulation in baker building 10 times (no fire), and compute the average, without door between library and language unit
 % fireSimulation = FireSimulation7(); % run evacuation simulation in baker building 10 times (no fire), and compute the average, with door between library and language unit, this script sets health points to 30
-fireSimulation = FireSimulation8(); % run evacuation simulation in baker building 10 times (with fire), and compute the average, without door between library and language unit, this script sets health points to 30
-% fireSimulation = BakerFirstFloor();
+% fireSimulation = FireSimulation8(); % run evacuation simulation in baker building 10 times (with fire), and compute the average, without door between library and language unit, this script sets health points to 30
+fireSimulation = BakerFirstFloor();
 
 fireSimulation.run();
