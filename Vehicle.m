@@ -74,7 +74,6 @@ classdef Vehicle < handle
             
             % cost increments by 10*fearFactor when encountering fire
             obj.fearFactor = rand(1,1)*0.4 + 2.8; 
-%             obj.fearFactor =  1+0.25*randn(1,1); 
 %             obj.fearFactor = 30;
             
             obj.rooms = rooms;
@@ -200,7 +199,6 @@ classdef Vehicle < handle
             doors = room.doors;
             lowestCost = 1000; % arbitrary
             for i = 1: numel(doors)
-                %                 cost = self.costs(doors(i).id) + norm(self.position(1:2) - [doors(i).x; doors(i).y]);
                 cost = self.costs(doors(i).id);
                 if ( cost < lowestCost)
                     lowestCost = cost;
@@ -396,8 +394,7 @@ classdef Vehicle < handle
             
             % identify the masterExit from which the recursive algorithm will calculate costs
             exit = self.doors(end);
-%             self.costs(exit.id) = 1;
-            
+
             rooms = exit.rooms;
 
             % identify the exits and set their costs to an arbitrary low value
@@ -410,12 +407,11 @@ classdef Vehicle < handle
             for i = 1:numel(rooms)
                 self.setCostsForRoom(rooms(i), exit, checkedRoomIds);
             end
-            
-            
+
             % finally update the doors in the room it is currently in after
             % updating the costs of all the doors. If this room has fire,
-            % add 30 to all the doors blocked by fire except the door it came
-            % from (if it was just initialised, add 30 to all doors blocked
+            % add a cost to all the doors blocked by fire except the door it came
+            % from (if it was just initialised, add a cost to all doors blocked
             % by fire)
             if (self.room.hasFire())
                      
@@ -429,7 +425,6 @@ classdef Vehicle < handle
                             % Update cost if door is not the last door AND
                             % the angle between door and fire is smaller than
                             % 90 degrees eg: door is behind the fire.
-                            % self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 30;
                             self.costs(self.room.doors(i).id) = self.costs(self.room.doors(i).id) + 10 * self.fearFactor;
                         end
                     end
@@ -508,8 +503,7 @@ classdef Vehicle < handle
                 end
                 
                 checkedRoomIds = [checkedRoomIds, room.id];
-                
-                
+
                 for i = 1: numel(doors)
                     rooms = doors(i).rooms;
                     for j = 1: numel(rooms)
@@ -538,18 +532,7 @@ classdef Vehicle < handle
                     
                     if ((norm(self.position(1:2) - [self.target.x; self.target.y]) > 0.05))
                         % Only proceed if vehicle is not at target door
-                        
-                        %                     vehiclesInRoom = self.getVehiclesInRoom(vehicles);
-                        %                     vehiclesInFront = [];
-                        %                     for i = 1: numel(vehiclesInRoom)
-                        %                         if (self.isVehicleInFront(vehiclesInRoom(i)))
-                        %
-                        %
-                        %                         end
-                        %
-                        %                     end
-                        
-                        
+
                         if (self.room.hasFire())
                             distanceToFire = self.getDistanceToFire(self.room.firePositions);
                         else
@@ -616,7 +599,6 @@ classdef Vehicle < handle
                         
                         % update the room it is in (this logic is needed coz it
                         % has not really moved to the next room yet
-                        
                         self.lastDoor = self.target;
                         lastRoom = self.room; % self.room and target will be updated soon, just save a copy
                         
@@ -640,8 +622,6 @@ classdef Vehicle < handle
                         
                         % immediately check the room after going into a new one
                         % If room has a fire, update roomsWithFire
-                        
-                        
                         if (self.room.hasFire() && ~any(self.room.id == self.roomsWithFire))
                             self.roomsWithFire = [self.roomsWithFire, self.room.id];
                         end
@@ -666,7 +646,6 @@ classdef Vehicle < handle
                         self.roomsWithFire = allRoomsWithFire;
                         
                         % update the costs of the all the doors on the map
-                        %                         self.updateCosts(lastDoor);
                         self.initialiseCosts();
                         
                         % change the target
@@ -679,7 +658,6 @@ classdef Vehicle < handle
                         % rethink about the route, different mechanisms for
                         % robot with or without knowledge of the layout of
                         % the room
-                        
                         if (self.withInfo)
                             % if it knows the layout, it can tell others
                             % all the rooms with fire
@@ -695,7 +673,6 @@ classdef Vehicle < handle
                                 % as it does not know the layout, it can
                                 % only tell others if the last room has
                                 % fire
-                                
                                 for i  = 1: numel(vehiclesInRoom)
                                     if (~any(vehiclesInRoom(i).roomsWithFire==lastRoom.id))
                                         vehiclesInRoom(i).roomsWithFire = [vehiclesInRoom(i).roomsWithFire, lastRoom.id];
@@ -707,12 +684,6 @@ classdef Vehicle < handle
                             end
                         end
                     end
-%                 else
-%                     % it has reached the exit
-%                     self.hasExited = true;
-%                     % move it to a far away place so it does not repel other
-%                     % vehicles trying to go to the exit
-%                     self.updatePosition(1000, 1000);                    
                 end
             end
         end
